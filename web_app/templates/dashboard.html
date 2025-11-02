@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.dashboard if t else 'Kontrol Paneli' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<!-- Content Header -->
+<div class="content-header">
+    <h2><i class="bi bi-speedometer2"></i> {{ t.dashboard if t else 'Kontrol Paneli' }}</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active">{{ t.dashboard if t else 'Kontrol Paneli' }}</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Status Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card-custom">
+            <div class="label">
+                <i class="bi bi-activity"></i> {{ t.status if t else 'Durum' }}
+            </div>
+            <div class="value" id="print-status" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                {{ t.idle if t else 'BEKLEMEDE' }}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom">
+            <div class="label">
+                <i class="bi bi-graph-up"></i> {{ t.motion_ratio if t else 'Hareket Oranı' }}
+            </div>
+            <div class="value" id="motion-ratio" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                0%
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom">
+            <div class="label">
+                <i class="bi bi-clock"></i> {{ t.uptime if t else 'Çalışma Süresi' }}
+            </div>
+            <div class="value" id="uptime" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                0s
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom">
+            <div class="label">
+                <i class="bi bi-eye"></i> {{ t.frames if t else 'Kareler' }}
+            </div>
+            <div class="value" id="frame-count" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                0
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Video Feed Section -->
+<div class="row mb-4">
+    <div class="col-12 mb-3">
+        <h4><i class="bi bi-camera-video-fill"></i> {{ t.image_processing if t else 'Görüntü İşleme Hattı' }}</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Original Camera Feed -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-camera"></i> {{ t.original_feed if t else 'Orijinal Kamera' }}</h5>
+            <div class="video-container">
+                <img src="{{ url_for('original_feed') }}" alt="Original Camera" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Motion Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-grid-3x3"></i> {{ t.motion_mask if t else 'Hareket Maskesi' }}</h5>
+            <div class="video-container">
+                <img src="{{ url_for('mask_feed') }}" alt="Motion Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-mask"></i> {{ t.model_mask if t else 'Model Maskesi' }}</h5>
+            <div class="video-container">
+                <img src="{{ url_for('model_mask_feed') }}" alt="Model Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 3D Model Detection Section -->
+<div class="row mb-4">
+    <div class="col-12 mb-3">
+        <h4><i class="bi bi-box"></i> {{ t.model_detection if t else '3D Model Tespiti' }}</h4>
+        <p class="text-muted">{{ t.model_detection_desc if t else 'Yazıcı tablasında bulunan sadece 3D baskı modelini tespit eder ve maskeler' }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Model Only (Sadece Model) -->
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-box-seam"></i> {{ t.model_only if t else 'Sadece 3D Model' }}</h5>
+            <p class="small text-muted">{{ t.model_only_desc if t else 'Arka plan kaldırılmış, sadece 3D baskı modeli' }}</p>
+            <div class="video-container">
+                <img src="{{ url_for('model_only_feed') }}" alt="Model Only" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Overlay (Model Çerçevesi) -->
+    <div class="col-md-6 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-bounding-box-circles"></i> {{ t.model_overlay if t else 'Model Çerçevesi' }}</h5>
+            <p class="small text-muted">{{ t.model_overlay_desc if t else 'Model sınırları ve merkezi işaretlenmiş' }}</p>
+            <div class="video-container">
+                <img src="{{ url_for('model_overlay_feed') }}" alt="Model Overlay" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Masks Section -->
+<div class="row mb-4">
+    <div class="col-12 mb-3">
+        <h4><i class="bi bi-exclamation-triangle"></i> {{ t.error_masks if t else 'Hata Maskeleri' }}</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Separation Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-arrow-up-circle"></i> {{ t.separation if t else 'Ayrılma' }}</h5>
+            <div class="video-container">
+                <img src="/api/error-masks/separation" alt="Separation Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Underextrusion Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-droplet-fill"></i> {{ t.underextrusion if t else 'Eksik Akış' }}</h5>
+            <div class="video-container">
+                <img src="/api/error-masks/underextrusion" alt="Underextrusion Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Deformation Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-bezier2"></i> {{ t.deformation if t else 'Deformasyon' }}</h5>
+            <div class="video-container">
+                <img src="/api/error-masks/deformation" alt="Deformation Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Surface Defect Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-grid-3x3-gap"></i> {{ t.surface_defect if t else 'Yüzey' }}</h5>
+            <div class="video-container">
+                <img src="/api/error-masks/surface_defect" alt="Surface Defect Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Deviation Mask -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-rulers"></i> {{ t.model_deviation if t else 'Sapma' }}</h5>
+            <div class="video-container">
+                <img src="/api/error-masks/model_deviation" alt="Model Deviation Mask" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Motion Graph -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-graph-up"></i> {{ t.motion_history if t else 'Hareket Geçmişi' }}</h5>
+            <div class="video-container">
+                <img src="{{ url_for('graph_feed') }}" alt="Motion Graph" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- OctoPrint Integration Section -->
+<div class="row mt-4">
+    <div class="col-12 mb-3">
+        <h4><i class="bi bi-printer"></i> {{ t.octoprint_integration if t else 'OctoPrint Entegrasyonu' }}</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Temperature Monitoring -->
+    <div class="col-md-3">
+        <div class="card-custom">
+            <h5><i class="bi bi-thermometer-half"></i> {{ t.nozzle if t else 'Nozul' }}</h5>
+            <div class="value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                <span id="octo-nozzle-temp">--</span>°C
+            </div>
+            <small class="text-muted">{{ t.target if t else 'Hedef' }}: <span id="octo-nozzle-target">--</span>°C</small>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card-custom">
+            <h5><i class="bi bi-thermometer"></i> {{ t.bed if t else 'Tabla' }}</h5>
+            <div class="value" style="font-size: 1.5rem; font-weight: bold; color: #667eea;">
+                <span id="octo-bed-temp">--</span>°C
+            </div>
+            <small class="text-muted">{{ t.target if t else 'Hedef' }}: <span id="octo-bed-target">--</span>°C</small>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-custom">
+            <h5><i class="bi bi-file-earmark-text"></i> {{ t.current_job if t else 'Aktif İş' }}</h5>
+            <div id="octo-job-name" style="font-weight: 600;">{{ t.no_active_job if t else 'Aktif iş yok' }}</div>
+            <div class="progress mt-2" style="height: 25px;">
+                <div class="progress-bar" id="octo-job-progress" role="progressbar" style="width: 0%">0%</div>
+            </div>
+            <small class="text-muted mt-1 d-block">{{ t.time_left if t else 'Kalan Süre' }}: <span id="octo-time-left">--</span></small>
+            <a href="/octoprint" class="btn btn-sm btn-primary mt-2">
+                <i class="bi bi-gear"></i> {{ t.full_control if t else 'Tam Kontrol Paneli' }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update every second
+    setInterval(updateDashboardStatus, 1000);
+    updateDashboardStatus();
+    
+    // Update OctoPrint data every 3 seconds
+    setInterval(updateOctoPrintDashboard, 3000);
+    updateOctoPrintDashboard();
+</script>
+{% endblock %}

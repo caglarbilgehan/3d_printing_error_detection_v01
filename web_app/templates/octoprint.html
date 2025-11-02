@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.nav_octoprint if t else 'OctoPrint Kontrolü' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
+{% block nav_octoprint %}active{% endblock %}
+
+{% block content %}
+<!-- Content Header -->
+<div class="content-header">
+    <h2><i class="bi bi-gear-fill"></i> {{ t.nav_octoprint if t else 'OctoPrint Kontrol Paneli' }}</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">{{ t.nav_dashboard if t else 'Ana Sayfa' }}</a></li>
+            <li class="breadcrumb-item active">{{ t.nav_octoprint if t else 'OctoPrint Kontrolü' }}</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Camera Feeds Section -->
+<div class="row mb-4">
+    <div class="col-12 mb-3">
+        <h4><i class="bi bi-camera-video-fill"></i> Live Camera Feed</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Original Camera Feed - Full Width -->
+    <div class="col-md-8 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-camera"></i> Live Camera Feed</h5>
+            <div class="video-container">
+                <img src="{{ url_for('original_feed') }}" alt="Original Camera" style="width: 100%; height: auto;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Connection Status -->
+    <div class="col-md-4 mb-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-plug"></i> Connection Status</h5>
+            <div id="connection-status">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Detection System -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h4><i class="bi bi-exclamation-triangle-fill"></i> Error Detection & Analysis</h4>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Error 1: Separation/Warping -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom error-card" id="error-separation">
+            <div class="error-header">
+                <i class="bi bi-arrow-up-circle"></i>
+                <h6>Ayrılma (Warping)</h6>
+            </div>
+            <p class="error-desc">Nesnenin baskı yatağından kalkması</p>
+            <div class="error-status">
+                <span class="badge bg-secondary" id="badge-separation">Normal</span>
+                <span class="confidence" id="conf-separation">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error 2: Under-extrusion -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom error-card" id="error-underextrusion">
+            <div class="error-header">
+                <i class="bi bi-droplet-fill"></i>
+                <h6>Eksik Malzeme Akışı</h6>
+            </div>
+            <p class="error-desc">Nozuldan filament çıkmaması</p>
+            <div class="error-status">
+                <span class="badge bg-secondary" id="badge-underextrusion">Normal</span>
+                <span class="confidence" id="conf-underextrusion">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error 3: Deformation -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom error-card" id="error-deformation">
+            <div class="error-header">
+                <i class="bi bi-bezier2"></i>
+                <h6>Deforme Olmuş Nesne</h6>
+            </div>
+            <p class="error-desc">Şeklin CAD modeline uymaması</p>
+            <div class="error-status">
+                <span class="badge bg-secondary" id="badge-deformation">Normal</span>
+                <span class="confidence" id="conf-deformation">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error 4: Surface Defects -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom error-card" id="error-surface_defect">
+            <div class="error-header">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <h6>Yüzey Hataları</h6>
+            </div>
+            <p class="error-desc">Yüzeyin CAD modelinden sapması</p>
+            <div class="error-status">
+                <span class="badge bg-secondary" id="badge-surface_defect">Normal</span>
+                <span class="confidence" id="conf-surface_defect">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error 5: Model Deviation -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom error-card" id="error-model_deviation">
+            <div class="error-header">
+                <i class="bi bi-rulers"></i>
+                <h6>Modelden Sapma</h6>
+            </div>
+            <p class="error-desc">Yapı/boyut olarak modelden sapma</p>
+            <div class="error-status">
+                <span class="badge bg-secondary" id="badge-model_deviation">Normal</span>
+                <span class="confidence" id="conf-model_deviation">0%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Summary -->
+    <div class="col-md-4 mb-3">
+        <div class="card-custom" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <div class="error-header">
+                <i class="bi bi-clipboard-data"></i>
+                <h6>Hata Özeti</h6>
+            </div>
+            <div style="font-size: 2.5rem; font-weight: bold; text-align: center; margin: 20px 0;">
+                <span id="total-errors">0</span>
+            </div>
+            <p style="text-align: center; margin: 0;">Tespit Edilen Hata</p>
+            <small style="display: block; text-align: center; margin-top: 10px; opacity: 0.8;" id="baseline-status">
+                Baseline oluşturuluyor...
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- Temperature Control -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card-custom">
+            <h5><i class="bi bi-thermometer-half"></i> Nozzle Temperature</h5>
+            <div class="temp-display" id="nozzle-temp">--°C</div>
+            <small class="text-muted">Target: <span id="nozzle-target">--</span>°C</small>
+            <div class="mt-3">
+                <label>Set Target Temperature:</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="nozzle-input" placeholder="200">
+                    <button class="btn btn-primary" onclick="setNozzleTemp()">
+                        <i class="bi bi-check"></i> Set
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card-custom">
+            <h5><i class="bi bi-thermometer"></i> Bed Temperature</h5>
+            <div class="temp-display" id="bed-temp">--°C</div>
+            <small class="text-muted">Target: <span id="bed-target">--</span>°C</small>
+            <div class="mt-3">
+                <label>Set Target Temperature:</label>
+                <div class="input-group">
+                    <input type="number" class="form-control" id="bed-input" placeholder="60">
+                    <button class="btn btn-primary" onclick="setBedTemp()">
+                        <i class="bi bi-check"></i> Set
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Print Job Control -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card-custom">
+            <h5><i class="bi bi-file-earmark-text"></i> Current Print Job</h5>
+            <div id="job-info">
+                <p>No active job</p>
+            </div>
+            <div class="progress progress-custom mt-3">
+                <div class="progress-bar" id="job-progress" role="progressbar" style="width: 0%">0%</div>
+            </div>
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-success control-btn" onclick="startJob()">
+                    <i class="bi bi-play-fill"></i> Start
+                </button>
+                <button class="btn btn-warning control-btn" onclick="pauseJob()">
+                    <i class="bi bi-pause-fill"></i> Pause
+                </button>
+                <button class="btn btn-info control-btn" onclick="resumeJob()">
+                    <i class="bi bi-skip-forward-fill"></i> Resume
+                </button>
+                <button class="btn btn-danger control-btn" onclick="cancelJob()">
+                    <i class="bi bi-x-circle-fill"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card-custom">
+            <h5><i class="bi bi-house"></i> Printer Control</h5>
+            <button class="btn btn-outline-primary control-btn" onclick="homeAll()">
+                <i class="bi bi-house-door"></i> Home All
+            </button>
+            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('x')">
+                <i class="bi bi-arrow-left-right"></i> Home X
+            </button>
+            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('y')">
+                <i class="bi bi-arrow-up-down"></i> Home Y
+            </button>
+            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('z')">
+                <i class="bi bi-arrows-vertical"></i> Home Z
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- G-code Terminal -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card-custom">
+            <h5><i class="bi bi-terminal"></i> G-code Terminal</h5>
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="gcode-input" placeholder="Enter G-code command (e.g., M114)">
+                <button class="btn btn-primary" onclick="sendGcode()">
+                    <i class="bi bi-send"></i> Send
+                </button>
+            </div>
+            <div id="gcode-output" style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace;">
+                <div class="text-muted">Terminal output will appear here...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-update every 2 seconds
+    setInterval(() => {
+        updateOctoPrintConnection();
+        updateOctoPrintPrinter();
+        updateOctoPrintJob();
+        updateErrorCards();
+    }, 2000);
+
+    // Initial load
+    updateOctoPrintConnection();
+    updateOctoPrintPrinter();
+    updateOctoPrintJob();
+    updateErrorCards();
+</script>
+{% endblock %}

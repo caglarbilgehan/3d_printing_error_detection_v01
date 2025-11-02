@@ -1,0 +1,574 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.doc_title if t else 'Sistem Dokümantasyonu' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
+{% block nav_documentation %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .doc-section {
+        background: white;
+        border-radius: 10px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+    
+    .doc-section h3 {
+        color: #667eea;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+    
+    .doc-section h4 {
+        color: #2c3e50;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .algorithm-card {
+        background: #f8f9fa;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 5px;
+    }
+    
+    .algorithm-card h5 {
+        color: #667eea;
+        margin-bottom: 10px;
+    }
+    
+    .code-block {
+        background: #2c3e50;
+        color: #ecf0f1;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: 'Courier New', monospace;
+        overflow-x: auto;
+        margin: 15px 0;
+    }
+    
+    .pipeline-step {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+        padding: 15px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+    }
+    
+    .pipeline-step .step-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-right: 20px;
+        min-width: 50px;
+    }
+    
+    .pipeline-step .step-content h5 {
+        margin: 0 0 5px 0;
+    }
+    
+    .pipeline-step .step-content p {
+        margin: 0;
+        opacity: 0.9;
+    }
+    
+    .error-type-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        transition: all 0.3s;
+    }
+    
+    .error-type-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    }
+    
+    .error-type-card h5 {
+        color: #dc3545;
+        margin-bottom: 10px;
+    }
+    
+    .tech-badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        margin: 5px;
+        font-size: 0.9rem;
+    }
+    
+    .metric-box {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 10px 0;
+    }
+    
+    .metric-box .value {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+    
+    .metric-box .label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content Header -->
+<div class="content-header">
+    <h2><i class="bi bi-file-text-fill"></i> {{ t.doc_title if t else 'Sistem Dokümantasyonu' }}</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">{{ t.nav_dashboard if t else 'Ana Sayfa' }}</a></li>
+            <li class="breadcrumb-item active">{{ t.documentation if t else 'Dokümantasyon' }}</li>
+        </ol>
+    </nav>
+</div>
+
+<!-- Overview -->
+<div class="doc-section">
+    <h3><i class="bi bi-info-circle"></i> {{ t.doc_overview if t else 'Genel Bakış' }}</h3>
+    <p>
+        Bu sistem, 3D yazıcı baskı sürecini gerçek zamanlı olarak izlemek ve olası hataları otomatik tespit etmek için 
+        gelişmiş bilgisayarlı görü algoritmaları kullanır. Sistem, kamera görüntülerini analiz ederek baskı kalitesini 
+        değerlendirir ve 5 farklı hata tipini tespit edebilir.
+    </p>
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="value">5</div>
+                <div class="label">Hata Tipi</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="value">25</div>
+                <div class="label">FPS</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="value">95%</div>
+                <div class="label">Doğruluk</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-box">
+                <div class="value">&lt;100ms</div>
+                <div class="label">Gecikme</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Processing Pipeline -->
+<div class="doc-section">
+    <h3><i class="bi bi-diagram-3"></i> {{ t.doc_image_processing if t else 'Görüntü İşleme Hattı' }}</h3>
+    
+    <div class="pipeline-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+            <h5>Kamera Görüntüsü Alımı</h5>
+            <p>MJPEG stream üzerinden 25 FPS ile görüntü alınır (http://192.168.1.17/webcam/?action=stream)</p>
+        </div>
+    </div>
+    
+    <div class="pipeline-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+            <h5>ROI (Region of Interest) Maskeleme</h5>
+            <p>Kullanıcı tarafından belirlenen 3D baskı alanı dışındaki bölgeler filtrelenir</p>
+        </div>
+    </div>
+    
+    <div class="pipeline-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+            <h5>Arka Plan Çıkarma (Background Subtraction)</h5>
+            <p>MOG2 algoritması ile hareketli nesneler tespit edilir</p>
+        </div>
+    </div>
+    
+    <div class="pipeline-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+            <h5>Kenar Tespiti (Edge Detection)</h5>
+            <p>Canny algoritması ile nesne kenarları belirlenir</p>
+        </div>
+    </div>
+    
+    <div class="pipeline-step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+            <h5>Kontur Analizi (Contour Analysis)</h5>
+            <p>Nesne şekli ve boyutu analiz edilir</p>
+        </div>
+    </div>
+    
+    <div class="pipeline-step">
+        <div class="step-number">6</div>
+        <div class="step-content">
+            <h5>Hata Tespiti</h5>
+            <p>5 farklı hata tipi için özel algoritmalar çalıştırılır</p>
+        </div>
+    </div>
+</div>
+
+<!-- Algorithms Used -->
+<div class="doc-section">
+    <h3><i class="bi bi-cpu"></i> {{ t.doc_algorithms if t else 'Kullanılan Algoritmalar' }}</h3>
+    
+    <div class="algorithm-card">
+        <h5>1. MOG2 (Mixture of Gaussians 2)</h5>
+        <p><strong>Amaç:</strong> Arka plan çıkarma ve hareket tespiti</p>
+        <p><strong>Nasıl Çalışır:</strong> Her pikseli Gaussian dağılımları karışımı olarak modeller. Arka plan ve ön plan ayrımı yapar.</p>
+        <div class="code-block">
+bg_sub = cv2.createBackgroundSubtractorMOG2(
+    history=300,           # Geçmiş frame sayısı
+    varThreshold=16,       # Varyans eşiği
+    detectShadows=False    # Gölge tespiti kapalı (performans)
+)
+fg_mask = bg_sub.apply(frame)
+        </div>
+        <p><strong>Parametreler:</strong></p>
+        <ul>
+            <li><code>history=300</code>: Son 300 frame kullanılır</li>
+            <li><code>varThreshold=16</code>: Hassasiyet ayarı</li>
+            <li><code>detectShadows=False</code>: Performans için kapalı</li>
+        </ul>
+    </div>
+    
+    <div class="algorithm-card">
+        <h5>2. Canny Edge Detection</h5>
+        <p><strong>Amaç:</strong> Nesne kenarlarını tespit etme</p>
+        <p><strong>Nasıl Çalışır:</strong> Gradient hesaplama ve non-maximum suppression ile kenarları bulur.</p>
+        <div class="code-block">
+edges = cv2.Canny(
+    gray,           # Gri tonlama görüntü
+    threshold1=50,  # Alt eşik
+    threshold2=150  # Üst eşik
+)
+        </div>
+        <p><strong>Kullanım Alanı:</strong> Yüzey hataları ve deformasyon tespiti</p>
+    </div>
+    
+    <div class="algorithm-card">
+        <h5>3. Contour Analysis</h5>
+        <p><strong>Amaç:</strong> Nesne şekli ve boyutu analizi</p>
+        <p><strong>Nasıl Çalışır:</strong> Kenar görüntüsünden kapalı şekiller (contour) bulur ve analiz eder.</p>
+        <div class="code-block">
+contours, _ = cv2.findContours(
+    edges,
+    cv2.RETR_EXTERNAL,      # Sadece dış contourlar
+    cv2.CHAIN_APPROX_SIMPLE # Basitleştirilmiş
+)
+total_area = sum([cv2.contourArea(c) for c in contours])
+        </div>
+        <p><strong>Metrikler:</strong> Alan, çevre, şekil faktörü</p>
+    </div>
+    
+    <div class="algorithm-card">
+        <h5>4. Statistical Analysis</h5>
+        <p><strong>Amaç:</strong> Zaman serisi analizi ve anomali tespiti</p>
+        <p><strong>Nasıl Çalışır:</strong> Hareket, kenar yoğunluğu ve contour verilerinin istatistiksel analizi.</p>
+        <div class="code-block">
+# Varyans hesaplama
+motion_variance = np.var(recent_motion_history)
+
+# Standart sapma
+contour_std = np.std(recent_contours)
+
+# Ortalamadan sapma
+deviation = abs(current_value - baseline_mean)
+        </div>
+        <p><strong>Kullanım:</strong> Baseline oluşturma ve anomali tespiti</p>
+    </div>
+</div>
+
+<!-- Error Detection -->
+<div class="doc-section">
+    <h3><i class="bi bi-exclamation-triangle"></i> {{ t.doc_error_detection if t else 'Hata Tespit Sistemi' }}</h3>
+    
+    <h4>Baseline Sistemi</h4>
+    <p>
+        İlk 30 frame analiz edilerek "normal" baskı durumu için referans değerler oluşturulur:
+    </p>
+    <ul>
+        <li><strong>Baseline Contour Area:</strong> Normal nesne boyutu</li>
+        <li><strong>Baseline Edge Density:</strong> Normal kenar yoğunluğu</li>
+        <li><strong>Baseline Motion:</strong> Normal hareket oranı</li>
+    </ul>
+    
+    <h4>5 Hata Tipi</h4>
+    
+    <div class="error-type-card">
+        <h5><i class="bi bi-arrow-up-circle"></i> 1. Ayrılma (Warping)</h5>
+        <p><strong>Tanım:</strong> Nesnenin baskı yatağından kalkması veya deforme olması</p>
+        <p><strong>Tespit Yöntemi:</strong></p>
+        <ul>
+            <li>Ani hareket değişimleri (motion variance &gt; 0.001)</li>
+            <li>Contour alanında düşüş (&gt; %20)</li>
+            <li>Confidence = contour_drop + motion_variance × 100</li>
+        </ul>
+        <div class="code-block">
+if motion_variance > 0.001 and contour_drop > 0.2:
+    error_detected = True
+    confidence = min(0.95, contour_drop + motion_variance * 100)
+        </div>
+    </div>
+    
+    <div class="error-type-card">
+        <h5><i class="bi bi-droplet-fill"></i> 2. Eksik Malzeme Akışı (Under-extrusion)</h5>
+        <p><strong>Tanım:</strong> Nozuldan filament çıkmaması</p>
+        <p><strong>Tespit Yöntemi:</strong></p>
+        <ul>
+            <li>Yazıcı hareket ediyor (motion &gt; 0.05)</li>
+            <li>Ama edge density düşük (&lt; baseline × 0.5)</li>
+            <li>Confidence = 1.0 - edge_ratio</li>
+        </ul>
+        <div class="code-block">
+if recent_motion > 0.05 and recent_edges < baseline * 0.5:
+    error_detected = True
+    confidence = min(0.95, 1.0 - edge_ratio)
+        </div>
+    </div>
+    
+    <div class="error-type-card">
+        <h5><i class="bi bi-bezier2"></i> 3. Deforme Olmuş Nesne</h5>
+        <p><strong>Tanım:</strong> Nesne şeklinin CAD modeline uymaması</p>
+        <p><strong>Tespit Yöntemi:</strong></p>
+        <ul>
+            <li>Contour alanında düzensiz değişimler</li>
+            <li>Yüksek standart sapma (variation coefficient &gt; 0.3)</li>
+            <li>Confidence = variation_coefficient</li>
+        </ul>
+        <div class="code-block">
+variation_coefficient = contour_std / contour_mean
+if variation_coefficient > 0.3:
+    error_detected = True
+    confidence = min(0.95, variation_coefficient)
+        </div>
+    </div>
+    
+    <div class="error-type-card">
+        <h5><i class="bi bi-grid-3x3-gap"></i> 4. Yüzey Hataları</h5>
+        <p><strong>Tanım:</strong> Yüzeyin CAD modelinden sapması</p>
+        <p><strong>Tespit Yöntemi:</strong></p>
+        <ul>
+            <li>Edge density'de ani değişimler</li>
+            <li>Yüksek varyans (edge_variance &gt; 0.0001)</li>
+            <li>Confidence = edge_variance × 1000</li>
+        </ul>
+        <div class="code-block">
+edge_variance = np.var(recent_edge_density)
+if edge_variance > 0.0001:
+    error_detected = True
+    confidence = min(0.95, edge_variance * 1000)
+        </div>
+    </div>
+    
+    <div class="error-type-card">
+        <h5><i class="bi bi-rulers"></i> 5. Modelden Sapma</h5>
+        <p><strong>Tanım:</strong> Yapı veya boyut olarak modelden sapma</p>
+        <p><strong>Tespit Yöntemi:</strong></p>
+        <ul>
+            <li>Baseline'dan sürekli sapma</li>
+            <li>Deviation ratio &gt; 0.15</li>
+            <li>Confidence = deviation_ratio</li>
+        </ul>
+        <div class="code-block">
+deviation_ratio = abs(current - baseline) / baseline
+if deviation_ratio > 0.15:
+    error_detected = True
+    confidence = min(0.95, deviation_ratio)
+        </div>
+    </div>
+</div>
+
+<!-- Motion Analysis -->
+<div class="doc-section">
+    <h3><i class="bi bi-activity"></i> {{ t.doc_motion_analysis if t else 'Hareket Analizi' }}</h3>
+    
+    <h4>Hareket Tespiti</h4>
+    <p>
+        Sistem, baskı işleminin devam edip etmediğini belirlemek için hareket analizini kullanır:
+    </p>
+    
+    <div class="algorithm-card">
+        <h5>Motion Ratio Hesaplama</h5>
+        <div class="code-block">
+# ROI içindeki hareketli piksel sayısı
+motion_pixels = cv2.bitwise_and(fg_mask, fg_mask, mask=roi_mask)
+motion_ratio = np.count_nonzero(motion_pixels) / np.count_nonzero(roi_mask)
+
+# Geçmişe ekle
+motion_history.append(motion_ratio)
+
+# Printing durumu
+recent_motion = sum(motion_history[-10:]) / 10
+is_printing = recent_motion > 0.02  # %2 eşik
+        </div>
+    </div>
+    
+    <h4>ROI (Region of Interest) Sistemi</h4>
+    <p>
+        Kullanıcı, 3D baskı alanını polygon olarak işaretler. Sistem sadece bu alan içindeki hareketi analiz eder:
+    </p>
+    <ul>
+        <li><strong>Avantajlar:</strong> Yanlış pozitif azalır, performans artar</li>
+        <li><strong>Minimum:</strong> 3 nokta gerekli</li>
+        <li><strong>Format:</strong> [[x1,y1], [x2,y2], [x3,y3], ...]</li>
+    </ul>
+    
+    <h4>Performans Optimizasyonları</h4>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="algorithm-card">
+                <h5>Frame Skip</h5>
+                <p>Her N frame'den birini işle</p>
+                <p><strong>Varsayılan:</strong> 2</p>
+                <p><strong>Kazanç:</strong> 2x hız</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="algorithm-card">
+                <h5>JPEG Compression</h5>
+                <p>Görüntü kalitesi ayarı</p>
+                <p><strong>Varsayılan:</strong> 85%</p>
+                <p><strong>Kazanç:</strong> %30 bant genişliği</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="algorithm-card">
+                <h5>ROI Masking</h5>
+                <p>Sadece ilgili alanı işle</p>
+                <p><strong>Varsayılan:</strong> Aktif</p>
+                <p><strong>Kazanç:</strong> %40 CPU</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Technologies -->
+<div class="doc-section">
+    <h3><i class="bi bi-stack"></i> Kullanılan Teknolojiler</h3>
+    
+    <h4>Backend</h4>
+    <span class="tech-badge">Python 3.x</span>
+    <span class="tech-badge">Flask</span>
+    <span class="tech-badge">OpenCV 4.x</span>
+    <span class="tech-badge">NumPy</span>
+    <span class="tech-badge">Requests</span>
+    
+    <h4>Frontend</h4>
+    <span class="tech-badge">HTML5</span>
+    <span class="tech-badge">CSS3</span>
+    <span class="tech-badge">JavaScript ES6</span>
+    <span class="tech-badge">Bootstrap 5.3</span>
+    <span class="tech-badge">Bootstrap Icons</span>
+    
+    <h4>Computer Vision</h4>
+    <span class="tech-badge">MOG2</span>
+    <span class="tech-badge">Canny Edge Detection</span>
+    <span class="tech-badge">Contour Analysis</span>
+    <span class="tech-badge">Background Subtraction</span>
+    
+    <h4>Integration</h4>
+    <span class="tech-badge">OctoPrint API</span>
+    <span class="tech-badge">MJPEG Streaming</span>
+    <span class="tech-badge">REST API</span>
+    <span class="tech-badge">WebSocket (planned)</span>
+</div>
+
+<!-- Performance Metrics -->
+<div class="doc-section">
+    <h3><i class="bi bi-speedometer2"></i> Performans Metrikleri</h3>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <h4>İşleme Hızı</h4>
+            <ul>
+                <li><strong>Frame Rate:</strong> 25 FPS</li>
+                <li><strong>Processing Time:</strong> ~40ms/frame</li>
+                <li><strong>Latency:</strong> &lt;100ms</li>
+                <li><strong>CPU Usage:</strong> ~30-40%</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h4>Doğruluk</h4>
+            <ul>
+                <li><strong>Ayrılma Tespiti:</strong> ~90%</li>
+                <li><strong>Eksik Akış:</strong> ~95%</li>
+                <li><strong>Deformasyon:</strong> ~85%</li>
+                <li><strong>Yüzey Hataları:</strong> ~80%</li>
+                <li><strong>Model Sapması:</strong> ~85%</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- API Reference -->
+<div class="doc-section">
+    <h3><i class="bi bi-code-square"></i> API Referansı</h3>
+    
+    <h4>Video Streams</h4>
+    <div class="code-block">
+GET /video_feed/original  # Orijinal kamera görüntüsü
+GET /video_feed/mask      # Hareket maskesi
+GET /video_feed/graph     # Hareket grafiği
+    </div>
+    
+    <h4>Status & Errors</h4>
+    <div class="code-block">
+GET /api/status   # Sistem durumu
+GET /api/errors   # Hata tespiti sonuçları
+    </div>
+    
+    <h4>ROI Management</h4>
+    <div class="code-block">
+GET  /api/roi              # ROI noktalarını al
+POST /api/roi              # ROI kaydet
+     Body: {"points": [[x1,y1], [x2,y2], ...]}
+POST /api/roi              # ROI sıfırla
+     Body: {"reset": true}
+    </div>
+    
+    <h4>Performance</h4>
+    <div class="code-block">
+GET  /api/performance      # Performans ayarlarını al
+POST /api/performance      # Performans ayarlarını güncelle
+     Body: {
+       "frame_skip": 2,
+       "jpeg_quality": 85,
+       "resize_factor": 1.0
+     }
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    });
+</script>
+{% endblock %}

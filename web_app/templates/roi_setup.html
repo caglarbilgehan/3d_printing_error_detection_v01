@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}{{ t.nav_roi if t else 'ROI Ayarları' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
+{% block nav_roi %}active{% endblock %}
+
+{% block content %}
+<!-- Content Header -->
+<div class="content-header">
+    <h2><i class="bi bi-bounding-box"></i> {{ t.roi_setup if t else 'ROI Kurulumu - 3D Baskı Alanı Tespiti' }}</h2>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">{{ t.nav_dashboard if t else 'Ana Sayfa' }}</a></li>
+            <li class="breadcrumb-item active">{{ t.nav_roi if t else 'ROI Ayarları' }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row">
+    <!-- Video Canvas -->
+    <div class="col-md-8">
+        <div class="canvas-container">
+            <canvas id="videoCanvas"></canvas>
+        </div>
+        
+        <div class="alert alert-info mt-3">
+            <strong><i class="bi bi-info-circle"></i> Instructions:</strong><br>
+            1. Click on video to add points (minimum 3 required)<br>
+            2. Points will form a polygon around your 3D print area<br>
+            3. Click "Save ROI" when done
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="col-md-4">
+        <div class="controls">
+            <h5><i class="bi bi-gear"></i> ROI Controls</h5>
+            
+            <div class="btn-group-custom">
+                <button class="btn btn-success w-100" onclick="saveROI()" id="saveBtn" disabled>
+                    <i class="bi bi-save"></i> Save ROI
+                </button>
+                <button class="btn btn-warning w-100" onclick="undoPoint()">
+                    <i class="bi bi-arrow-counterclockwise"></i> Undo Last Point
+                </button>
+                <button class="btn btn-danger w-100" onclick="clearROI()">
+                    <i class="bi bi-trash"></i> Clear All
+                </button>
+            </div>
+            
+            <hr>
+            
+            <h6>Selected Points (<span id="pointCount">0</span>)</h6>
+            <div class="point-list" id="pointList"></div>
+            
+            <div class="alert alert-success mt-3" id="successMsg" style="display: none;">
+                <i class="bi bi-check-circle"></i> ROI saved successfully!
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const canvas = document.getElementById('videoCanvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    window.roiPoints = [];
+    
+    // Load existing ROI
+    fetch('/api/roi')
+        .then(r => r.json())
+        .then(data => {
+            if (data.points && data.points.length > 0) {
+                window.roiPoints = data.points;
+                updatePointList();
+            }
+        });
+    
+    // Update video stream
+    function updateVideo() {
+        img.src = '/video_feed/original?' + new Date().getTime();
+    }
+    
+    img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        
+        // Draw existing points and polygon
+        if (window.roiPoints.length > 0) {
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.fillStyle = 'rgba(0, 255, 0, 0.2)';
+            
+            // Draw polygon
+            if (window.roiPoints.length >= 3) {
+                ctx.beginPath();
+                ctx.moveTo(window.roiPoints[0][0], window.roiPoints[0][1]);
+                for (let i = 1; i < window.roiPoints.length; i++) {
+                    ctx.lineTo(window.roiPoints[i][0], window.roiPoints[i][1]);
+                }
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+            }
+            
+            // Draw points
+            window.roiPoints.forEach((point, index) => {
+                ctx.fillStyle = '#00ff00';
+                ctx.beginPath();
+                ctx.arc(point[0], point[1], 5, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw point number
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '12px Arial';
+                ctx.fillText(index + 1, point[0] + 10, point[1] - 10);
+            });
+        }
+        
+        setTimeout(updateVideo, 100);
+    };
+    
+    updateVideo();
+    
+    // Canvas click handler
+    canvas.addEventListener('click', function(e) {
+        const rect = canvas.getBoundingClientRect();
+        const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
+        const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
+        
+        window.roiPoints.push([x, y]);
+        updatePointList();
+    });
+    
+    function updatePointList() {
+        const list = document.getElementById('pointList');
+        const count = document.getElementById('pointCount');
+        const saveBtn = document.getElementById('saveBtn');
+        
+        count.textContent = window.roiPoints.length;
+        
+        list.innerHTML = window.roiPoints.map((point, index) => `
+            <div class="point-item">
+                <span>Point ${index + 1}: (${point[0]}, ${point[1]})</span>
+                <button class="btn btn-sm btn-danger" onclick="removePoint(${index})">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `).join('');
+        
+        saveBtn.disabled = window.roiPoints.length < 3;
+    }
+    
+    function removePoint(index) {
+        window.roiPoints.splice(index, 1);
+        updatePointList();
+    }
+    
+    function undoPoint() {
+        if (window.roiPoints.length > 0) {
+            window.roiPoints.pop();
+            updatePointList();
+        }
+    }
+</script>
+{% endblock %}

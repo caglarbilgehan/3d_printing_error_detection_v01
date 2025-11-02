@@ -1,0 +1,80 @@
+<!-- Sidebar Component -->
+<aside class="sidebar">
+    <!-- Navigation Menu -->
+    <ul class="sidebar-menu">
+        <li><a href="/" class="{% block nav_dashboard %}{% endblock %}"><i class="bi bi-speedometer2"></i> {{ t.nav_dashboard if t else 'Kontrol Paneli' }}</a></li>
+        <li><a href="/octoprint" class="{% block nav_octoprint %}{% endblock %}"><i class="bi bi-gear"></i> {{ t.nav_octoprint if t else 'OctoPrint Kontrolü' }}</a></li>
+        <li><a href="/roi-setup" class="{% block nav_roi %}{% endblock %}"><i class="bi bi-bounding-box"></i> {{ t.nav_roi if t else 'ROI Ayarları' }}</a></li>
+        <li><a href="/documentation" class="{% block nav_documentation %}{% endblock %}"><i class="bi bi-file-text"></i> {{ t.nav_documentation if t else 'Dokümantasyon' }}</a></li>
+        <li><a href="#" class="{% block nav_analytics %}{% endblock %}"><i class="bi bi-graph-up"></i> {{ t.nav_analytics if t else 'Analitik' }}</a></li>
+    </ul>
+    
+    <!-- Error Detection Section -->
+    <div class="sidebar-section" style="border-top: 2px solid rgba(255,255,255,0.2); padding-top: 20px;">
+        <h6><i class="bi bi-shield-exclamation"></i> {{ t.error_detection if t else 'Hata Tespiti' }}</h6>
+        
+        <!-- Total Errors Badge -->
+        <div class="error-summary-badge">
+            <div class="error-count" id="sidebar-total-errors">0</div>
+            <div class="error-label">{{ t.active_errors if t else 'Aktif Hatalar' }}</div>
+        </div>
+        
+        <!-- Error List -->
+        <div class="error-mini-list">
+            <div class="error-mini-item" id="sidebar-error-separation">
+                <i class="bi bi-arrow-up-circle"></i>
+                <span>{{ t.separation if t else 'Ayrılma' }}</span>
+                <span class="badge bg-success badge-xs" id="sidebar-badge-separation">OK</span>
+            </div>
+            
+            <div class="error-mini-item" id="sidebar-error-underextrusion">
+                <i class="bi bi-droplet-fill"></i>
+                <span>{{ t.underextrusion if t else 'Eksik Akış' }}</span>
+                <span class="badge bg-success badge-xs" id="sidebar-badge-underextrusion">OK</span>
+            </div>
+            
+            <div class="error-mini-item" id="sidebar-error-deformation">
+                <i class="bi bi-bezier2"></i>
+                <span>{{ t.deformation if t else 'Deformasyon' }}</span>
+                <span class="badge bg-success badge-xs" id="sidebar-badge-deformation">OK</span>
+            </div>
+            
+            <div class="error-mini-item" id="sidebar-error-surface_defect">
+                <i class="bi bi-grid-3x3-gap"></i>
+                <span>{{ t.surface_defect if t else 'Yüzey' }}</span>
+                <span class="badge bg-success badge-xs" id="sidebar-badge-surface_defect">OK</span>
+            </div>
+            
+            <div class="error-mini-item" id="sidebar-error-model_deviation">
+                <i class="bi bi-rulers"></i>
+                <span>{{ t.model_deviation if t else 'Sapma' }}</span>
+                <span class="badge bg-success badge-xs" id="sidebar-badge-model_deviation">OK</span>
+            </div>
+        </div>
+        
+        <small class="baseline-status" id="sidebar-baseline-status">
+            <i class="bi bi-hourglass-split"></i> {{ t.baseline_creating if t else 'Baseline oluşturuluyor...' }}
+        </small>
+    </div>
+    
+    <!-- System Info Section -->
+    <div class="sidebar-section">
+        <h6>{{ t.system_info if t else 'Sistem Bilgisi' }}</h6>
+        <div class="info-card" style="background: rgba(255,255,255,0.1); border: none;">
+            <div class="label" style="color: rgba(255,255,255,0.6);">
+                <i class="bi bi-cpu"></i> {{ t.cpu_usage if t else 'CPU Kullanımı' }}
+            </div>
+            <div class="value" style="color: white; font-size: 1.1rem;">
+                <span id="cpu-usage">--</span>%
+            </div>
+        </div>
+        <div class="info-card" style="background: rgba(255,255,255,0.1); border: none; margin-top: 10px;">
+            <div class="label" style="color: rgba(255,255,255,0.6);">
+                <i class="bi bi-hdd"></i> {{ t.memory_usage if t else 'Bellek Kullanımı' }}
+            </div>
+            <div class="value" style="color: white; font-size: 1.1rem;">
+                <span id="memory-usage">--</span>%
+            </div>
+        </div>
+    </div>
+</aside>

@@ -1,0 +1,307 @@
+/* 
+ * Component Styles
+ * Reusable UI components
+ */
+
+/* Error Detection Components */
+.error-summary-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.error-count {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.error-label {
+    color: rgba(255,255,255,0.9);
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+.error-mini-list {
+    margin: 15px 0;
+}
+
+.error-mini-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+    border-left: 3px solid transparent;
+}
+
+.error-mini-item.detected {
+    background: rgba(220, 53, 69, 0.2);
+    border-left-color: #dc3545;
+}
+
+.error-mini-item i {
+    color: rgba(255,255,255,0.7);
+    font-size: 1rem;
+}
+
+.error-mini-item.detected i {
+    color: #dc3545;
+}
+
+.error-mini-item span:nth-child(2) {
+    flex: 1;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+}
+
+.badge-xs {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+}
+
+.baseline-status {
+    display: block;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Error Cards (Detailed) */
+.error-card {
+    border-left: 4px solid #6c757d;
+    transition: all 0.3s;
+}
+
+.error-card.detected {
+    border-left-color: #dc3545;
+    background: #fff5f5;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.error-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.error-header i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+}
+
+.error-card.detected .error-header i {
+    color: #dc3545;
+}
+
+.error-header h6 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.error-desc {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+}
+
+.error-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.confidence {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.error-card.detected .confidence {
+    color: #dc3545;
+}
+
+/* Info Cards */
+.info-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 4px solid #667eea;
+}
+
+.info-card .label {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.info-card .value {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Temperature Display */
+.temp-display {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Progress Bars */
+.progress-custom {
+    height: 30px;
+    font-size: 1rem;
+}
+
+/* Control Buttons */
+.control-btn {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+/* Status Badge */
+.status-badge {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+}
+
+/* File Item */
+.file-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.file-item:hover {
+    background: #f8f9fa;
+}
+
+/* Canvas Container (ROI) */
+.canvas-container {
+    position: relative;
+    display: inline-block;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+
+#videoCanvas {
+    cursor: crosshair;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+/* Point List */
+.point-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.point-item {
+    padding: 8px;
+    background: #f8f9fa;
+    margin: 5px 0;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Button Group */
+.btn-group-custom {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Documentation Styles */
+.doc-section {
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+
+.doc-section h3 {
+    color: #667eea;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
+}
+
+.algorithm-card {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 5px;
+}
+
+.code-block {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+    margin: 15px 0;
+}
+
+.pipeline-step {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+}
+
+.pipeline-step .step-number {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-right: 20px;
+    min-width: 50px;
+}
+
+.tech-badge {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin: 5px;
+    font-size: 0.9rem;
+}
+
+.metric-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.metric-box .value {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+.metric-box .label {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}

@@ -1,0 +1,45 @@
+<!-- Top Header Component -->
+<header class="top-header">
+    <div class="header-brand">
+        <i class="bi bi-printer-fill"></i>
+        <span>{{ t.header_title if t else '3D Yazıcı İzleme' }}</span>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-sm btn-outline-secondary" id="toggle-sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+        
+        <!-- Language Selector -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-translate"></i> {{ lang|upper if lang else 'TR' }}
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="changeLanguage('tr')">🇹🇷 Türkçe</a></li>
+                <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇬🇧 English</a></li>
+            </ul>
+        </div>
+        
+        <!-- Settings Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-gear"></i> {{ t.settings if t else 'Ayarlar' }}
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/roi-setup"><i class="bi bi-bounding-box"></i> {{ t.roi_config if t else 'ROI Yapılandırması' }}</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#performanceModal"><i class="bi bi-speedometer2"></i> {{ t.performance_settings if t else 'Performans Ayarları' }}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-camera"></i> {{ t.camera_settings if t else 'Kamera Ayarları' }}</a></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-sliders"></i> {{ t.detection_settings if t else 'Tespit Ayarları' }}</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> {{ t.logout if t else 'Çıkış' }}</a></li>
+            </ul>
+        </div>
+        
+        <!-- Notifications -->
+        <button class="btn btn-sm btn-primary">
+            <i class="bi bi-bell"></i>
+            <span class="badge bg-danger">3</span>
+        </button>
+    </div>
+</header>
