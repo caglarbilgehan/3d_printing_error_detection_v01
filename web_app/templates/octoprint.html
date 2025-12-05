@@ -1,247 +1,725 @@
 {% extends "base.html" %}
 
-{% block title %}{{ t.nav_octoprint if t else 'OctoPrint Kontrolü' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
+{% block title %}{{ t.nav_octoprint if t else 'Yazıcı Kontrol' }} - {{ t.header_title if t else '3D Yazıcı İzleme' }}{% endblock %}
 {% block nav_octoprint %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Printer control page - Theme Aware */
+.printer-control-page {
+    background: var(--bg-primary);
+    min-height: calc(100vh - 60px);
+    padding: 0;
+    margin: -20px;
+    margin-top: -10px;
+}
+
+.printer-header {
+    background: var(--bg-card);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.printer-name {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.printer-name h3 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.printer-status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.printer-status-icon.online { background: var(--accent-success); color: white; }
+.printer-status-icon.offline { background: var(--accent-danger); color: white; }
+.printer-status-icon.printing { background: var(--accent-warning); color: #000; animation: pulse-print 1.5s infinite; }
+
+@keyframes pulse-print {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.printer-stats {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.stat-item i { font-size: 1.1rem; }
+.stat-item .value { color: var(--text-primary); font-weight: 600; }
+.stat-item.temp-hot .value { color: var(--accent-danger); }
+.stat-item.temp-warm .value { color: var(--accent-warning); }
+
+/* Tab Navigation */
+.printer-tabs {
+    background: var(--bg-card);
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.printer-tabs .nav-link {
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 0;
+    padding: 12px 20px;
+    font-weight: 500;
+    border-bottom: 3px solid transparent;
+}
+
+.printer-tabs .nav-link:hover {
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.05);
+}
+
+.printer-tabs .nav-link.active {
+    color: var(--accent-primary);
+    background: transparent;
+    border-bottom-color: var(--accent-primary);
+}
+
+.printer-tabs .nav-link i { margin-right: 8px; }
+
+/* Action Buttons Row */
+.action-row {
+    display: flex;
+    gap: 15px;
+    padding: 15px 20px;
+    background: var(--bg-card);
+}
+
+.action-btn {
+    padding: 10px 25px;
+    border-radius: 4px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-btn.primary { background: var(--accent-primary); color: var(--text-inverse); border: none; }
+.action-btn.secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); }
+
+/* Current Job Section */
+.current-job {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    margin: 15px 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.job-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.job-thumbnail {
+    width: 80px;
+    height: 80px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.job-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.job-thumbnail i {
+    font-size: 2rem;
+    color: var(--accent-primary);
+}
+
+.job-info { flex: 1; }
+
+.job-info h4 {
+    color: var(--text-primary);
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+}
+
+.job-meta {
+    display: flex;
+    gap: 20px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.job-meta span { display: flex; align-items: center; gap: 5px; }
+
+.job-progress-section {
+    padding: 15px 20px;
+}
+
+.progress-bar-container {
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-inverse);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: width 0.5s ease;
+}
+
+.progress-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.job-controls {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+.job-controls .btn {
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+/* Print Queue */
+.print-queue {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    margin: 15px 20px;
+    border-radius: 8px;
+}
+
+.queue-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.queue-header h5 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.queue-table {
+    width: 100%;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.queue-table th {
+    padding: 10px 15px;
+    text-align: left;
+    color: var(--text-muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.queue-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.queue-table tr:hover { background: rgba(255,255,255,0.02); }
+
+.queue-table .file-name { color: var(--text-primary); }
+
+/* File Browser */
+.file-browser {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    margin: 15px 20px;
+    border-radius: 8px;
+}
+
+.browser-header {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.browser-header h5 {
+    color: var(--text-primary);
+    margin: 0;
+    font-size: 1rem;
+}
+
+.browser-search {
+    flex: 1;
+    max-width: 300px;
+}
+
+.browser-search input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.browser-search input::placeholder { color: var(--text-muted); }
+
+.browser-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.view-toggle button {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+}
+
+.view-toggle button.active {
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border-color: var(--accent-primary);
+}
+
+.file-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.file-item:hover { background: rgba(255,255,255,0.03); }
+
+.file-item .file-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.file-item .file-icon i { color: var(--accent-primary); font-size: 1.2rem; }
+
+.file-item .file-details { flex: 1; }
+.file-item .file-name { color: var(--text-primary); font-weight: 500; }
+.file-item .file-meta { color: var(--text-muted); font-size: 0.8rem; }
+
+.file-item .file-stats {
+    display: flex;
+    gap: 20px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+/* Tab Content */
+.tab-content-area {
+    padding: 0;
+}
+
+/* Control Panel Tab */
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 20px;
+}
+
+.control-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.control-card h6 {
+    color: var(--text-primary);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Console Tab */
+.console-container {
+    background: var(--bg-primary);
+    margin: 15px 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.console-output {
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--accent-success);
+}
+
+.console-input {
+    display: flex;
+    border-top: 1px solid var(--border-color);
+}
+
+.console-input input {
+    flex: 1;
+    background: var(--bg-card);
+    border: none;
+    color: var(--text-primary);
+    padding: 12px 15px;
+    font-family: 'Courier New', monospace;
+}
+
+.console-input button {
+    background: var(--accent-primary);
+    border: none;
+    color: var(--text-inverse);
+    padding: 12px 20px;
+    font-weight: 500;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Content Header -->
-<div class="content-header">
-    <h2><i class="bi bi-gear-fill"></i> {{ t.nav_octoprint if t else 'OctoPrint Kontrol Paneli' }}</h2>
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">{{ t.nav_dashboard if t else 'Ana Sayfa' }}</a></li>
-            <li class="breadcrumb-item active">{{ t.nav_octoprint if t else 'OctoPrint Kontrolü' }}</li>
-        </ol>
-    </nav>
-</div>
-
-<!-- Camera Feeds Section -->
-<div class="row mb-4">
-    <div class="col-12 mb-3">
-        <h4><i class="bi bi-camera-video-fill"></i> Live Camera Feed</h4>
-    </div>
-</div>
-
-<div class="row">
-    <!-- Original Camera Feed - Full Width -->
-    <div class="col-md-8 mb-4">
-        <div class="card-custom">
-            <h5><i class="bi bi-camera"></i> Live Camera Feed</h5>
-            <div class="video-container">
-                <img src="{{ url_for('original_feed') }}" alt="Original Camera" style="width: 100%; height: auto;">
+<div class="printer-control-page">
+    <!-- Printer Header -->
+    <div class="printer-header">
+        <div class="printer-name">
+            <div class="printer-status-icon" id="printer-status-icon">
+                <i class="bi bi-printer-fill"></i>
+            </div>
+            <div>
+                <h3 id="printer-name-display">{{ t.printer if t else 'Yazıcı' }}</h3>
+                <small class="text-muted" id="printer-profile">OctoPrint</small>
+            </div>
+        </div>
+        <div class="printer-stats">
+            <div class="stat-item">
+                <i class="bi bi-speedometer2"></i>
+                <span>{{ t.speed if t else 'Hız' }}:</span>
+                <span class="value" id="print-speed">100%</span>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-droplet"></i>
+                <span>{{ t.flow if t else 'Akış' }}:</span>
+                <span class="value" id="flow-rate">100%</span>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-fan"></i>
+                <span>{{ t.fan if t else 'Fan' }}:</span>
+                <span class="value" id="fan-speed">100%</span>
+            </div>
+            <div class="stat-item temp-hot">
+                <i class="bi bi-thermometer-high"></i>
+                <span>T:</span>
+                <span class="value" id="header-nozzle-temp">--°C</span>
+            </div>
+            <div class="stat-item temp-warm">
+                <i class="bi bi-thermometer-half"></i>
+                <span>B:</span>
+                <span class="value" id="header-bed-temp">--°C</span>
             </div>
         </div>
     </div>
 
-    <!-- Connection Status -->
-    <div class="col-md-4 mb-4">
-        <div class="card-custom">
-            <h5><i class="bi bi-plug"></i> Connection Status</h5>
-            <div id="connection-status">
-                <div class="spinner-border text-primary" role="status"></div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Tab Navigation -->
+    <ul class="nav printer-tabs" id="printerTabs" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-print">
+                <i class="bi bi-printer"></i> {{ t.tab_print if t else 'Yazdır' }}
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-control">
+                <i class="bi bi-sliders"></i> {{ t.tab_control if t else 'Kontrol' }}
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-console">
+                <i class="bi bi-terminal"></i> {{ t.tab_console if t else 'Konsol' }}
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-camera">
+                <i class="bi bi-camera-video"></i> {{ t.tab_camera if t else 'Kamera' }}
+            </button>
+        </li>
+    </ul>
 
-<!-- Error Detection System -->
-<div class="row mb-4">
-    <div class="col-12">
-        <h4><i class="bi bi-exclamation-triangle-fill"></i> Error Detection & Analysis</h4>
-    </div>
-</div>
+    <!-- Tab Content -->
+    <div class="tab-content tab-content-area" id="printerTabContent">
+        <!-- Print Tab -->
+        <div class="tab-pane fade show active" id="tab-print">
+            <!-- Action Buttons -->
+            <div class="action-row">
+                <button class="action-btn primary" onclick="directPrint()">
+                    <i class="bi bi-download"></i> {{ t.direct_print if t else 'Direk Baskı' }}
+                </button>
+                <button class="action-btn secondary" onclick="showRecentPrints()">
+                    {{ t.recent_prints if t else 'Son Baskılar' }}
+                </button>
+            </div>
 
-<div class="row">
-    <!-- Error 1: Separation/Warping -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom error-card" id="error-separation">
-            <div class="error-header">
-                <i class="bi bi-arrow-up-circle"></i>
-                <h6>Ayrılma (Warping)</h6>
-            </div>
-            <p class="error-desc">Nesnenin baskı yatağından kalkması</p>
-            <div class="error-status">
-                <span class="badge bg-secondary" id="badge-separation">Normal</span>
-                <span class="confidence" id="conf-separation">0%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error 2: Under-extrusion -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom error-card" id="error-underextrusion">
-            <div class="error-header">
-                <i class="bi bi-droplet-fill"></i>
-                <h6>Eksik Malzeme Akışı</h6>
-            </div>
-            <p class="error-desc">Nozuldan filament çıkmaması</p>
-            <div class="error-status">
-                <span class="badge bg-secondary" id="badge-underextrusion">Normal</span>
-                <span class="confidence" id="conf-underextrusion">0%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error 3: Deformation -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom error-card" id="error-deformation">
-            <div class="error-header">
-                <i class="bi bi-bezier2"></i>
-                <h6>Deforme Olmuş Nesne</h6>
-            </div>
-            <p class="error-desc">Şeklin CAD modeline uymaması</p>
-            <div class="error-status">
-                <span class="badge bg-secondary" id="badge-deformation">Normal</span>
-                <span class="confidence" id="conf-deformation">0%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error 4: Surface Defects -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom error-card" id="error-surface_defect">
-            <div class="error-header">
-                <i class="bi bi-grid-3x3-gap"></i>
-                <h6>Yüzey Hataları</h6>
-            </div>
-            <p class="error-desc">Yüzeyin CAD modelinden sapması</p>
-            <div class="error-status">
-                <span class="badge bg-secondary" id="badge-surface_defect">Normal</span>
-                <span class="confidence" id="conf-surface_defect">0%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error 5: Model Deviation -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom error-card" id="error-model_deviation">
-            <div class="error-header">
-                <i class="bi bi-rulers"></i>
-                <h6>Modelden Sapma</h6>
-            </div>
-            <p class="error-desc">Yapı/boyut olarak modelden sapma</p>
-            <div class="error-status">
-                <span class="badge bg-secondary" id="badge-model_deviation">Normal</span>
-                <span class="confidence" id="conf-model_deviation">0%</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Error Summary -->
-    <div class="col-md-4 mb-3">
-        <div class="card-custom" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-            <div class="error-header">
-                <i class="bi bi-clipboard-data"></i>
-                <h6>Hata Özeti</h6>
-            </div>
-            <div style="font-size: 2.5rem; font-weight: bold; text-align: center; margin: 20px 0;">
-                <span id="total-errors">0</span>
-            </div>
-            <p style="text-align: center; margin: 0;">Tespit Edilen Hata</p>
-            <small style="display: block; text-align: center; margin-top: 10px; opacity: 0.8;" id="baseline-status">
-                Baseline oluşturuluyor...
-            </small>
-        </div>
-    </div>
-</div>
-
-<!-- Temperature Control -->
-<div class="row">
-    <div class="col-md-6">
-        <div class="card-custom">
-            <h5><i class="bi bi-thermometer-half"></i> Nozzle Temperature</h5>
-            <div class="temp-display" id="nozzle-temp">--°C</div>
-            <small class="text-muted">Target: <span id="nozzle-target">--</span>°C</small>
-            <div class="mt-3">
-                <label>Set Target Temperature:</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="nozzle-input" placeholder="200">
-                    <button class="btn btn-primary" onclick="setNozzleTemp()">
-                        <i class="bi bi-check"></i> Set
+            <!-- Current Job -->
+            <div class="current-job" id="current-job-section">
+                <div class="job-header">
+                    <div class="job-thumbnail" id="job-thumbnail">
+                        <i class="bi bi-box"></i>
+                    </div>
+                    <div class="job-info">
+                        <h4 id="job-file-name">{{ t.no_active_job if t else 'Aktif iş yok' }}</h4>
+                        <div class="job-meta">
+                            <span><i class="bi bi-calendar"></i> ETA: <span id="job-eta">--</span></span>
+                            <span><i class="bi bi-clock"></i> {{ t.start if t else 'Başla' }}: <span id="job-start-time">--</span></span>
+                            <span><i class="bi bi-hourglass"></i> {{ t.duration if t else 'Süre' }}: <span id="job-duration">--</span></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="job-progress-section">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="job-progress-bar" style="width: 0%">
+                            <span id="job-progress-text">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <span><i class="bi bi-layers"></i> <span id="job-layers">-- / --</span></span>
+                        <span><i class="bi bi-arrows-vertical"></i> Z: <span id="job-z-height">--</span> mm</span>
+                    </div>
+                </div>
+                <div class="job-controls">
+                    <button class="btn btn-danger" onclick="cancelJob()">
+                        <i class="bi bi-stop-fill"></i> {{ t.stop if t else 'Dur' }}
+                    </button>
+                    <button class="btn btn-warning" onclick="pauseJob()">
+                        <i class="bi bi-pause-fill"></i> {{ t.pause if t else 'Duraklat' }}
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6">
-        <div class="card-custom">
-            <h5><i class="bi bi-thermometer"></i> Bed Temperature</h5>
-            <div class="temp-display" id="bed-temp">--°C</div>
-            <small class="text-muted">Target: <span id="bed-target">--</span>°C</small>
-            <div class="mt-3">
-                <label>Set Target Temperature:</label>
-                <div class="input-group">
-                    <input type="number" class="form-control" id="bed-input" placeholder="60">
-                    <button class="btn btn-primary" onclick="setBedTemp()">
-                        <i class="bi bi-check"></i> Set
-                    </button>
+
+            <!-- Print Queue -->
+            <div class="print-queue">
+                <div class="queue-header">
+                    <h5><i class="bi bi-list-ol"></i> {{ t.print_queue if t else 'Baskı Kuyruğu' }}</h5>
+                </div>
+                <table class="queue-table">
+                    <thead>
+                        <tr>
+                            <th>{{ t.file_name if t else 'Dosya Adı' }}</th>
+                            <th>{{ t.count if t else 'Sayı' }}</th>
+                            <th>{{ t.added if t else 'Eklenen' }}</th>
+                            <th>{{ t.size if t else 'Boyut' }}</th>
+                            <th>{{ t.lines if t else 'Satırlar' }}</th>
+                            <th>{{ t.time if t else 'Zaman' }}</th>
+                            <th>{{ t.filament if t else 'Filament' }}</th>
+                            <th>{{ t.layer if t else 'Layer' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-body">
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-3">{{ t.queue_empty if t else 'Kuyruk boş' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- File Browser -->
+            <div class="file-browser">
+                <div class="browser-header">
+                    <h5>{{ t.files if t else 'Dosyalar' }}</h5>
+                    <div class="browser-search">
+                        <input type="text" placeholder="{{ t.search if t else 'Ara...' }}" id="file-search">
+                    </div>
+                    <div class="browser-actions">
+                        <button class="action-btn secondary" onclick="uploadGcode()">
+                            <i class="bi bi-upload"></i> {{ t.upload_gcode if t else 'G-Kodu Yükle' }}
+                        </button>
+                        <div class="view-toggle btn-group">
+                            <button class="active"><i class="bi bi-list"></i></button>
+                            <button><i class="bi bi-grid"></i></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="file-list" id="file-list">
+                    <!-- Files will be loaded here -->
                 </div>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Print Job Control -->
-<div class="row">
-    <div class="col-md-8">
-        <div class="card-custom">
-            <h5><i class="bi bi-file-earmark-text"></i> Current Print Job</h5>
-            <div id="job-info">
-                <p>No active job</p>
-            </div>
-            <div class="progress progress-custom mt-3">
-                <div class="progress-bar" id="job-progress" role="progressbar" style="width: 0%">0%</div>
-            </div>
-            <div class="mt-3 d-flex gap-2">
-                <button class="btn btn-success control-btn" onclick="startJob()">
-                    <i class="bi bi-play-fill"></i> Start
-                </button>
-                <button class="btn btn-warning control-btn" onclick="pauseJob()">
-                    <i class="bi bi-pause-fill"></i> Pause
-                </button>
-                <button class="btn btn-info control-btn" onclick="resumeJob()">
-                    <i class="bi bi-skip-forward-fill"></i> Resume
-                </button>
-                <button class="btn btn-danger control-btn" onclick="cancelJob()">
-                    <i class="bi bi-x-circle-fill"></i> Cancel
-                </button>
+        <!-- Control Tab -->
+        <div class="tab-pane fade" id="tab-control">
+            <div class="control-grid">
+                <!-- Temperature Control -->
+                <div class="control-card">
+                    <h6><i class="bi bi-thermometer-half text-danger"></i> {{ t.nozzle_temp if t else 'Nozul Sıcaklığı' }}</h6>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div style="font-size: 2rem; font-weight: bold; color: #ff6b6b;" id="nozzle-temp">--°C</div>
+                        <small class="text-muted">{{ t.target if t else 'Hedef' }}: <span id="nozzle-target">--</span>°C</small>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" class="form-control bg-dark text-white border-secondary" id="nozzle-input" placeholder="200">
+                        <button class="btn btn-outline-light" onclick="setNozzleTemp()">{{ t.set if t else 'Ayarla' }}</button>
+                    </div>
+                </div>
+
+                <!-- Bed Temperature -->
+                <div class="control-card">
+                    <h6><i class="bi bi-thermometer text-warning"></i> {{ t.bed_temp if t else 'Tabla Sıcaklığı' }}</h6>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div style="font-size: 2rem; font-weight: bold; color: #ffc107;" id="bed-temp">--°C</div>
+                        <small class="text-muted">{{ t.target if t else 'Hedef' }}: <span id="bed-target">--</span>°C</small>
+                    </div>
+                    <div class="input-group">
+                        <input type="number" class="form-control bg-dark text-white border-secondary" id="bed-input" placeholder="60">
+                        <button class="btn btn-outline-light" onclick="setBedTemp()">{{ t.set if t else 'Ayarla' }}</button>
+                    </div>
+                </div>
+
+                <!-- Fan Control -->
+                <div class="control-card">
+                    <h6><i class="bi bi-fan text-info"></i> {{ t.fan_control if t else 'Fan Kontrolü' }}</h6>
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div style="font-size: 2rem; font-weight: bold; color: #4ecdc4;" id="fan-display">0%</div>
+                    </div>
+                    <input type="range" class="form-range" id="fan-slider" min="0" max="100" value="0" onchange="setFanSpeed(this.value)">
+                </div>
+
+                <!-- Movement Control -->
+                <div class="control-card">
+                    <h6><i class="bi bi-arrows-move"></i> {{ t.manual_move if t else 'Manuel Hareket' }}</h6>
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <button class="btn btn-outline-light" onclick="jogAxis('y', 10)"><i class="bi bi-arrow-up"></i></button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-outline-light me-2" onclick="jogAxis('x', -10)"><i class="bi bi-arrow-left"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="homeAll()"><i class="bi bi-house"></i></button>
+                            <button class="btn btn-outline-light ms-2" onclick="jogAxis('x', 10)"><i class="bi bi-arrow-right"></i></button>
+                        </div>
+                        <div class="mb-2">
+                            <button class="btn btn-outline-light" onclick="jogAxis('y', -10)"><i class="bi bi-arrow-down"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Z Control -->
+                <div class="control-card">
+                    <h6><i class="bi bi-arrows-vertical"></i> Z {{ t.control if t else 'Kontrol' }}</h6>
+                    <div class="d-flex justify-content-center gap-3">
+                        <button class="btn btn-outline-success btn-lg" onclick="jogAxis('z', 1)">Z+</button>
+                        <button class="btn btn-outline-danger btn-lg" onclick="jogAxis('z', -1)">Z-</button>
+                    </div>
+                    <div class="mt-3">
+                        <select class="form-select bg-dark text-white border-secondary" id="step-size">
+                            <option value="0.1">0.1mm</option>
+                            <option value="1" selected>1mm</option>
+                            <option value="10">10mm</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- System Commands -->
+                <div class="control-card">
+                    <h6><i class="bi bi-power"></i> {{ t.system_commands if t else 'Sistem' }}</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-success" onclick="connectPrinter()">
+                            <i class="bi bi-plug"></i> {{ t.connect if t else 'Bağlan' }}
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="disconnectPrinter()">
+                            <i class="bi bi-plug-fill"></i> {{ t.disconnect if t else 'Kes' }}
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="homeAll()">
+                            <i class="bi bi-house"></i> Home All
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <div class="col-md-4">
-        <div class="card-custom">
-            <h5><i class="bi bi-house"></i> Printer Control</h5>
-            <button class="btn btn-outline-primary control-btn" onclick="homeAll()">
-                <i class="bi bi-house-door"></i> Home All
-            </button>
-            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('x')">
-                <i class="bi bi-arrow-left-right"></i> Home X
-            </button>
-            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('y')">
-                <i class="bi bi-arrow-up-down"></i> Home Y
-            </button>
-            <button class="btn btn-outline-secondary control-btn" onclick="homeAxis('z')">
-                <i class="bi bi-arrows-vertical"></i> Home Z
-            </button>
-        </div>
-    </div>
-</div>
 
-<!-- G-code Terminal -->
-<div class="row">
-    <div class="col-md-12">
-        <div class="card-custom">
-            <h5><i class="bi bi-terminal"></i> G-code Terminal</h5>
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" id="gcode-input" placeholder="Enter G-code command (e.g., M114)">
-                <button class="btn btn-primary" onclick="sendGcode()">
-                    <i class="bi bi-send"></i> Send
-                </button>
+        <!-- Console Tab -->
+        <div class="tab-pane fade" id="tab-console">
+            <div class="console-container">
+                <div class="console-output" id="gcode-output">
+                    <div style="color: #4ecdc4;">G-code Terminal Ready...</div>
+                </div>
+                <div class="console-input">
+                    <input type="text" id="gcode-input" placeholder="{{ t.gcode_placeholder if t else 'G-code komutu girin...' }}">
+                    <button onclick="sendGcode()"><i class="bi bi-send"></i> {{ t.send if t else 'Gönder' }}</button>
+                </div>
             </div>
-            <div id="gcode-output" style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 5px; font-family: monospace;">
-                <div class="text-muted">Terminal output will appear here...</div>
+            <div class="p-3">
+                <small class="text-muted">{{ t.quick_commands if t else 'Hızlı Komutlar' }}:</small>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="quickGcode('M114')">M114 (Konum)</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="quickGcode('M105')">M105 (Sıcaklık)</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="quickGcode('G28')">G28 (Home)</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="quickGcode('M503')">M503 (Ayarlar)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Tab -->
+        <div class="tab-pane fade" id="tab-camera">
+            <div class="p-4">
+                <div class="text-center">
+                    <img src="{{ url_for('original_feed') }}" alt="Camera" style="max-width: 100%; border-radius: 8px; border: 2px solid #2d3a4f;">
+                </div>
             </div>
         </div>
     </div>
@@ -250,18 +728,1011 @@
 
 {% block extra_js %}
 <script>
-    // Auto-update every 2 seconds
-    setInterval(() => {
-        updateOctoPrintConnection();
-        updateOctoPrintPrinter();
-        updateOctoPrintJob();
-        updateErrorCards();
-    }, 2000);
+// OctoPrint Control Functions
 
-    // Initial load
-    updateOctoPrintConnection();
-    updateOctoPrintPrinter();
-    updateOctoPrintJob();
-    updateErrorCards();
+// Temperature Control
+function setNozzleTemp() {
+    const temp = document.getElementById('nozzle-input').value;
+    if (temp) {
+        fetch('/api/octoprint/temperature/tool', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({tool: 0, target: parseFloat(temp)})
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showNotification('Nozzle temperature set to ' + temp + '°C', 'success');
+              } else {
+                  showNotification('Failed to set nozzle temperature', 'error');
+              }
+          });
+    }
+}
+
+function setBedTemp() {
+    const temp = document.getElementById('bed-input').value;
+    if (temp) {
+        fetch('/api/octoprint/temperature/bed', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({target: parseFloat(temp)})
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  showNotification('Bed temperature set to ' + temp + '°C', 'success');
+              } else {
+                  showNotification('Failed to set bed temperature', 'error');
+              }
+          });
+    }
+}
+
+// Job Control
+function startJob() {
+    fetch('/api/octoprint/job/start', {method: 'POST'})
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Print job started', 'success');
+            } else {
+                showNotification('Failed to start print job', 'error');
+            }
+        });
+}
+
+function pauseJob() {
+    fetch('/api/octoprint/job/pause', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'pause'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Print job paused', 'success');
+          } else {
+              showNotification('Failed to pause print job', 'error');
+          }
+      });
+}
+
+function resumeJob() {
+    fetch('/api/octoprint/job/pause', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'resume'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Print job resumed', 'success');
+          } else {
+              showNotification('Failed to resume print job', 'error');
+          }
+      });
+}
+
+function cancelJob() {
+    if (confirm('Are you sure you want to cancel the current print job?')) {
+        fetch('/api/octoprint/job/cancel', {method: 'POST'})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Print job cancelled', 'success');
+                } else {
+                    showNotification('Failed to cancel print job', 'error');
+                }
+            });
+    }
+}
+
+// Movement Control
+function homeAll() {
+    fetch('/api/octoprint/printhead/home', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({axes: ['x', 'y', 'z']})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Homing all axes', 'success');
+          } else {
+              showNotification('Failed to home axes', 'error');
+          }
+      });
+}
+
+function homeAxis(axis) {
+    fetch('/api/octoprint/printhead/home', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({axes: [axis]})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification(`Homing ${axis.toUpperCase()} axis`, 'success');
+          } else {
+              showNotification(`Failed to home ${axis.toUpperCase()} axis`, 'error');
+          }
+      });
+}
+
+function jogAxis(axis, distance) {
+    const stepSize = parseFloat(document.getElementById('step-size').value);
+    const actualDistance = distance > 0 ? stepSize : -stepSize;
+    
+    const data = {speed: 6000};
+    data[axis] = actualDistance;
+    
+    fetch('/api/octoprint/printhead/jog', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification(`Moved ${axis.toUpperCase()} ${actualDistance}mm`, 'success');
+          } else {
+              showNotification(`Failed to move ${axis.toUpperCase()} axis`, 'error');
+          }
+      });
+}
+
+// System Commands
+function connectPrinter() {
+    fetch('/api/octoprint/connection', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'connect'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Connecting to printer...', 'success');
+          } else {
+              showNotification('Failed to connect to printer', 'error');
+          }
+      });
+}
+
+function disconnectPrinter() {
+    fetch('/api/octoprint/connection', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'disconnect'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Disconnected from printer', 'success');
+          } else {
+              showNotification('Failed to disconnect from printer', 'error');
+          }
+      });
+}
+
+// SD Card Functions
+function initSD() {
+    fetch('/api/octoprint/printer/sd', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'init'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('SD card initialized', 'success');
+          } else {
+              showNotification('Failed to initialize SD card', 'error');
+          }
+      });
+}
+
+function refreshSD() {
+    fetch('/api/octoprint/printer/sd', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'refresh'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('SD card files refreshed', 'success');
+          } else {
+              showNotification('Failed to refresh SD card', 'error');
+          }
+      });
+}
+
+function releaseSD() {
+    fetch('/api/octoprint/printer/sd', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({command: 'release'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('SD card released', 'success');
+          } else {
+              showNotification('Failed to release SD card', 'error');
+          }
+      });
+}
+
+// G-code Terminal & Visualization
+let gcodeVisualization = {
+    canvas: null,
+    ctx: null,
+    currentLayer: 0,
+    totalLayers: 0,
+    layers: [],
+    viewMode: '3d',
+    animationRunning: false,
+    animationFrame: null
+};
+
+function sendGcode() {
+    const command = document.getElementById('gcode-input').value.trim();
+    if (command) {
+        addToTerminal(`> ${command}`, 'text-primary');
+        
+        fetch('/api/octoprint/gcode', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({commands: [command]})
+        }).then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  addToTerminal('Command sent successfully', 'text-success');
+                  // Simulate response for common commands
+                  simulateGcodeResponse(command);
+              } else {
+                  addToTerminal('Failed to send command', 'text-danger');
+              }
+              
+              document.getElementById('gcode-input').value = '';
+          });
+    }
+}
+
+function quickGcode(command) {
+    document.getElementById('gcode-input').value = command;
+    sendGcode();
+}
+
+function addToTerminal(message, className = 'text-success') {
+    const output = document.getElementById('gcode-output');
+    const newLine = document.createElement('div');
+    newLine.className = className;
+    newLine.textContent = message;
+    output.appendChild(newLine);
+    output.scrollTop = output.scrollHeight;
+    
+    // Keep terminal history manageable
+    if (output.children.length > 100) {
+        output.removeChild(output.firstChild);
+    }
+}
+
+function simulateGcodeResponse(command) {
+    // Simulate realistic responses for common G-code commands
+    setTimeout(() => {
+        switch(command.toUpperCase()) {
+            case 'M114':
+                addToTerminal('X:150.00 Y:150.00 Z:10.50 E:0.00 Count X:12000 Y:12000 Z:4200', 'text-info');
+                updatePosition(150, 150, 10.5);
+                break;
+            case 'M105':
+                addToTerminal('ok T:210.0 /210.0 B:60.0 /60.0 @:127 B@:127', 'text-info');
+                break;
+            case 'G28':
+                addToTerminal('Homing X Y Z...', 'text-warning');
+                setTimeout(() => {
+                    addToTerminal('Homing completed', 'text-success');
+                    updatePosition(0, 0, 0);
+                }, 2000);
+                break;
+            case 'M503':
+                addToTerminal('Settings:', 'text-info');
+                addToTerminal('Steps per unit: X80.00 Y80.00 Z400.00 E93.00', 'text-info');
+                addToTerminal('Maximum feedrates: X300.00 Y300.00 Z5.00 E25.00', 'text-info');
+                break;
+            default:
+                addToTerminal('ok', 'text-success');
+        }
+    }, 500);
+}
+
+function updatePosition(x, y, z) {
+    document.getElementById('pos-x').textContent = x.toFixed(2);
+    document.getElementById('pos-y').textContent = y.toFixed(2);
+    document.getElementById('pos-z').textContent = z.toFixed(2);
+}
+
+// G-code Visualization Functions
+function initGcodeVisualization() {
+    const canvas = document.getElementById('gcode-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    gcodeVisualization.canvas = canvas;
+    gcodeVisualization.ctx = ctx;
+    
+    // Set canvas size
+    resizeCanvas();
+    
+    // Load current file if available
+    loadCurrentGcodeFile();
+    
+    // Hide loading overlay
+    document.getElementById('canvas-loading').style.display = 'none';
+}
+
+function resizeCanvas() {
+    const container = document.getElementById('gcode-canvas-container');
+    const canvas = gcodeVisualization.canvas;
+    
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+    
+    drawGcodeVisualization();
+}
+
+function loadCurrentGcodeFile() {
+    // Simulate loading G-code file
+    fetch('/api/octoprint/job')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.job && data.job.file) {
+                const filename = data.job.file.name;
+                addToTerminal(`Loading G-code file: ${filename}`, 'text-info');
+                
+                // Simulate G-code parsing
+                parseGcodeFile(filename);
+            } else {
+                // Show sample visualization
+                createSampleVisualization();
+            }
+        })
+        .catch(() => {
+            createSampleVisualization();
+        });
+}
+
+function parseGcodeFile(filename) {
+    // Simulate G-code parsing - in real implementation, this would parse actual G-code
+    addToTerminal('Parsing G-code...', 'text-info');
+    
+    setTimeout(() => {
+        // Create sample layers
+        gcodeVisualization.totalLayers = 50;
+        gcodeVisualization.layers = [];
+        
+        for (let i = 0; i < gcodeVisualization.totalLayers; i++) {
+            gcodeVisualization.layers.push({
+                z: i * 0.2,
+                paths: generateLayerPaths(i)
+            });
+        }
+        
+        updateLayerInfo();
+        drawGcodeVisualization();
+        addToTerminal(`G-code loaded: ${gcodeVisualization.totalLayers} layers`, 'text-success');
+    }, 1000);
+}
+
+function generateLayerPaths(layerIndex) {
+    // Generate sample paths for visualization
+    const paths = [];
+    const centerX = 150;
+    const centerY = 150;
+    const radius = 30 - (layerIndex * 0.3); // Cone shape
+    
+    // Outer perimeter
+    const outerPath = [];
+    for (let angle = 0; angle <= 360; angle += 5) {
+        const rad = (angle * Math.PI) / 180;
+        outerPath.push({
+            x: centerX + Math.cos(rad) * radius,
+            y: centerY + Math.sin(rad) * radius,
+            type: 'extrude'
+        });
+    }
+    paths.push(outerPath);
+    
+    // Infill pattern
+    if (layerIndex % 2 === 0) {
+        // Horizontal lines
+        for (let y = centerY - radius + 5; y < centerY + radius - 5; y += 5) {
+            paths.push([
+                {x: centerX - radius + 5, y: y, type: 'extrude'},
+                {x: centerX + radius - 5, y: y, type: 'extrude'}
+            ]);
+        }
+    } else {
+        // Vertical lines
+        for (let x = centerX - radius + 5; x < centerX + radius - 5; x += 5) {
+            paths.push([
+                {x: x, y: centerY - radius + 5, type: 'extrude'},
+                {x: x, y: centerY + radius - 5, type: 'extrude'}
+            ]);
+        }
+    }
+    
+    return paths;
+}
+
+function createSampleVisualization() {
+    addToTerminal('Creating sample visualization...', 'text-info');
+    
+    // Create a simple cube visualization
+    gcodeVisualization.totalLayers = 20;
+    gcodeVisualization.layers = [];
+    
+    for (let i = 0; i < gcodeVisualization.totalLayers; i++) {
+        gcodeVisualization.layers.push({
+            z: i * 0.2,
+            paths: generateSampleCube(i)
+        });
+    }
+    
+    updateLayerInfo();
+    drawGcodeVisualization();
+    addToTerminal('Sample visualization ready', 'text-success');
+}
+
+function generateSampleCube(layerIndex) {
+    const paths = [];
+    const size = 40;
+    const centerX = 150;
+    const centerY = 150;
+    
+    // Square perimeter
+    paths.push([
+        {x: centerX - size/2, y: centerY - size/2, type: 'extrude'},
+        {x: centerX + size/2, y: centerY - size/2, type: 'extrude'},
+        {x: centerX + size/2, y: centerY + size/2, type: 'extrude'},
+        {x: centerX - size/2, y: centerY + size/2, type: 'extrude'},
+        {x: centerX - size/2, y: centerY - size/2, type: 'extrude'}
+    ]);
+    
+    return paths;
+}
+
+function drawGcodeVisualization() {
+    const ctx = gcodeVisualization.ctx;
+    const canvas = gcodeVisualization.canvas;
+    
+    if (!ctx || !canvas) return;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Set up coordinate system
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.scale(1, -1); // Flip Y axis for proper coordinate system
+    
+    // Draw build plate
+    drawBuildPlate(ctx);
+    
+    // Draw layers up to current layer
+    for (let i = 0; i <= gcodeVisualization.currentLayer && i < gcodeVisualization.layers.length; i++) {
+        drawLayer(ctx, gcodeVisualization.layers[i], i);
+    }
+    
+    ctx.restore();
+    
+    // Update current layer display
+    updateCurrentLayerDisplay();
+}
+
+function drawBuildPlate(ctx) {
+    ctx.strokeStyle = '#ddd';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(-100, -100, 200, 200);
+    
+    // Grid
+    ctx.strokeStyle = '#eee';
+    ctx.lineWidth = 0.5;
+    for (let i = -100; i <= 100; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, -100);
+        ctx.lineTo(i, 100);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(-100, i);
+        ctx.lineTo(100, i);
+        ctx.stroke();
+    }
+}
+
+function drawLayer(ctx, layer, layerIndex) {
+    if (!layer || !layer.paths) return;
+    
+    // Color based on layer height
+    const alpha = Math.max(0.3, 1 - (layerIndex * 0.02));
+    const hue = (layerIndex * 10) % 360;
+    ctx.strokeStyle = `hsla(${hue}, 70%, 50%, ${alpha})`;
+    ctx.lineWidth = 2;
+    
+    layer.paths.forEach(path => {
+        if (path.length < 2) return;
+        
+        ctx.beginPath();
+        ctx.moveTo(path[0].x - 150, path[0].y - 150);
+        
+        for (let i = 1; i < path.length; i++) {
+            ctx.lineTo(path[i].x - 150, path[i].y - 150);
+        }
+        
+        ctx.stroke();
+    });
+}
+
+function updateLayerInfo() {
+    document.getElementById('total-layers').textContent = gcodeVisualization.totalLayers;
+    document.getElementById('max-layers').textContent = gcodeVisualization.totalLayers;
+    document.getElementById('layer-slider').max = gcodeVisualization.totalLayers - 1;
+}
+
+function updateCurrentLayerDisplay() {
+    document.getElementById('current-layer-viz').textContent = gcodeVisualization.currentLayer + 1;
+    document.getElementById('layer-display').textContent = gcodeVisualization.currentLayer + 1;
+    document.getElementById('layer-slider').value = gcodeVisualization.currentLayer;
+}
+
+// Layer Navigation
+function goToLayer(layerIndex) {
+    gcodeVisualization.currentLayer = parseInt(layerIndex);
+    drawGcodeVisualization();
+}
+
+function nextLayer() {
+    if (gcodeVisualization.currentLayer < gcodeVisualization.totalLayers - 1) {
+        gcodeVisualization.currentLayer++;
+        drawGcodeVisualization();
+    }
+}
+
+function previousLayer() {
+    if (gcodeVisualization.currentLayer > 0) {
+        gcodeVisualization.currentLayer--;
+        drawGcodeVisualization();
+    }
+}
+
+// View Controls
+function setViewMode(mode) {
+    gcodeVisualization.viewMode = mode;
+    
+    // Update button states
+    document.querySelectorAll('[id^="view-"]').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`view-${mode}`).classList.add('active');
+    
+    drawGcodeVisualization();
+}
+
+function resetView() {
+    gcodeVisualization.currentLayer = gcodeVisualization.totalLayers - 1;
+    drawGcodeVisualization();
+}
+
+function toggleAnimation() {
+    if (gcodeVisualization.animationRunning) {
+        stopAnimation();
+    } else {
+        startAnimation();
+    }
+}
+
+function startAnimation() {
+    gcodeVisualization.animationRunning = true;
+    gcodeVisualization.currentLayer = 0;
+    
+    function animate() {
+        if (!gcodeVisualization.animationRunning) return;
+        
+        drawGcodeVisualization();
+        gcodeVisualization.currentLayer++;
+        
+        if (gcodeVisualization.currentLayer >= gcodeVisualization.totalLayers) {
+            gcodeVisualization.currentLayer = 0;
+        }
+        
+        gcodeVisualization.animationFrame = setTimeout(animate, 200);
+    }
+    
+    animate();
+}
+
+function stopAnimation() {
+    gcodeVisualization.animationRunning = false;
+    if (gcodeVisualization.animationFrame) {
+        clearTimeout(gcodeVisualization.animationFrame);
+    }
+}
+
+// System Commands
+function restartOctoPrint() {
+    if (confirm('Are you sure you want to restart OctoPrint?')) {
+        fetch('/api/octoprint/system/restart', {method: 'POST'})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('OctoPrint is restarting...', 'warning');
+                } else {
+                    showNotification('Failed to restart OctoPrint', 'error');
+                }
+            });
+    }
+}
+
+function shutdownSystem() {
+    if (confirm('Are you sure you want to shutdown the system?')) {
+        fetch('/api/octoprint/system/shutdown', {method: 'POST'})
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('System is shutting down...', 'warning');
+                } else {
+                    showNotification('Failed to shutdown system', 'error');
+                }
+            });
+    }
+}
+
+// Update Functions
+function updateOctoPrintData() {
+    // Update comprehensive status
+    fetch('/api/octoprint/comprehensive')
+        .then(response => response.json())
+        .then(data => {
+            if (data && !data.error) {
+                updateSystemInfo(data);
+                updateTemperatures(data);
+                updateJobInfo(data);
+                updateConnectionStatus(data);
+            }
+        })
+        .catch(error => console.error('Error updating OctoPrint data:', error));
+    
+    // Update files
+    updateFileList();
+}
+
+function updateSystemInfo(data) {
+    // Update printer profile in header
+    if (data.connection && data.connection.current && data.connection.current.printerProfile) {
+        const profile = document.getElementById('printer-profile');
+        if (profile) profile.textContent = data.connection.current.printerProfile || 'OctoPrint';
+    }
+    
+    if (data.printer_state) {
+        // Update printer status icon
+        const statusIcon = document.getElementById('printer-status-icon');
+        if (statusIcon) {
+            if (data.printer_state.is_printing) {
+                statusIcon.className = 'printer-status-icon printing';
+            } else if (data.printer_state.is_operational) {
+                statusIcon.className = 'printer-status-icon online';
+            } else {
+                statusIcon.className = 'printer-status-icon offline';
+            }
+        }
+    }
+}
+
+function updateTemperatures(data) {
+    if (data.temperature_summary) {
+        const temp = data.temperature_summary;
+        const nozzleTemp = temp.tool_temp !== undefined ? Math.round(temp.tool_temp) : '--';
+        const bedTemp = temp.bed_temp !== undefined ? Math.round(temp.bed_temp) : '--';
+        const nozzleTarget = temp.tool_target !== undefined ? Math.round(temp.tool_target) : '--';
+        const bedTarget = temp.bed_target !== undefined ? Math.round(temp.bed_target) : '--';
+        
+        // Header temperatures
+        const headerNozzle = document.getElementById('header-nozzle-temp');
+        const headerBed = document.getElementById('header-bed-temp');
+        if (headerNozzle) headerNozzle.textContent = `${nozzleTemp}°C`;
+        if (headerBed) headerBed.textContent = `${bedTemp}°C`;
+        
+        // Control tab temperatures
+        const nozzleTempEl = document.getElementById('nozzle-temp');
+        const bedTempEl = document.getElementById('bed-temp');
+        const nozzleTargetEl = document.getElementById('nozzle-target');
+        const bedTargetEl = document.getElementById('bed-target');
+        
+        if (nozzleTempEl) nozzleTempEl.textContent = `${nozzleTemp}°C`;
+        if (bedTempEl) bedTempEl.textContent = `${bedTemp}°C`;
+        if (nozzleTargetEl) nozzleTargetEl.textContent = nozzleTarget;
+        if (bedTargetEl) bedTargetEl.textContent = bedTarget;
+    }
+}
+
+function updateJobInfo(data) {
+    if (data.print_progress) {
+        const progress = data.print_progress;
+        const completion = progress.completion || 0;
+        
+        // Update progress bar
+        const progressBar = document.getElementById('job-progress-bar');
+        const progressText = document.getElementById('job-progress-text');
+        if (progressBar) {
+            progressBar.style.width = `${completion}%`;
+        }
+        if (progressText) {
+            progressText.textContent = `${completion.toFixed(2)}%`;
+        }
+        
+        // Update ETA
+        if (progress.print_time_left !== undefined && progress.print_time_left !== null) {
+            const now = new Date();
+            const eta = new Date(now.getTime() + progress.print_time_left * 1000);
+            const etaStr = eta.toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+            const jobEta = document.getElementById('job-eta');
+            if (jobEta) jobEta.textContent = etaStr;
+        }
+        
+        // Update duration
+        if (progress.print_time !== undefined && progress.print_time !== null) {
+            const hours = Math.floor(progress.print_time / 3600);
+            const minutes = Math.floor((progress.print_time % 3600) / 60);
+            const seconds = Math.floor(progress.print_time % 60);
+            const jobDuration = document.getElementById('job-duration');
+            if (jobDuration) jobDuration.textContent = `${hours}s ${minutes}dk ${seconds}sn`;
+        }
+        
+        // Update layers
+        const jobLayers = document.getElementById('job-layers');
+        if (jobLayers && progress.filepos && progress.filesize) {
+            const estimatedLayers = Math.round((progress.filepos / progress.filesize) * 500); // Estimate
+            jobLayers.textContent = `${estimatedLayers} / 500`;
+        }
+        
+        // Update Z height
+        const jobZHeight = document.getElementById('job-z-height');
+        if (jobZHeight) {
+            const zHeight = (completion / 100 * 50).toFixed(2); // Estimate based on progress
+            jobZHeight.textContent = zHeight;
+        }
+    }
+    
+    // Update job file name
+    if (data.job && data.job.file) {
+        const jobFileName = document.getElementById('job-file-name');
+        if (jobFileName) {
+            jobFileName.textContent = data.job.file.name || 'Aktif iş yok';
+        }
+        
+        // Update start time
+        const jobStartTime = document.getElementById('job-start-time');
+        if (jobStartTime && data.job.file.date) {
+            const startDate = new Date(data.job.file.date * 1000);
+            jobStartTime.textContent = startDate.toLocaleString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+    }
+}
+
+function simulateLiveGcodeExecution() {
+    // Simulate live G-code commands being executed
+    const liveCommands = [
+        'G1 X145.2 Y152.8 E0.05',
+        'G1 X148.1 Y155.3 E0.03',
+        'G1 X150.0 Y158.0 E0.04',
+        'G1 X152.5 Y160.2 E0.06',
+        'G1 X155.0 Y162.1 E0.05'
+    ];
+    
+    // Randomly show a command being executed
+    if (Math.random() < 0.3) { // 30% chance each update
+        const randomCommand = liveCommands[Math.floor(Math.random() * liveCommands.length)];
+        addToTerminal(`Executing: ${randomCommand}`, 'text-warning');
+        
+        // Update current command display
+        document.getElementById('current-gcode-command').textContent = randomCommand;
+    }
+}
+
+function updateConnectionStatus(data) {
+    const statusElement = document.getElementById('connection-status');
+    if (data.connection && data.connection.current) {
+        const conn = data.connection.current;
+        statusElement.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <div>
+                    <div><strong>${conn.state}</strong></div>
+                    <small class="text-muted">Port: ${conn.port || 'N/A'}</small>
+                </div>
+            </div>
+        `;
+    } else {
+        statusElement.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                <div><strong>Disconnected</strong></div>
+            </div>
+        `;
+    }
+}
+
+function updateFileList() {
+    fetch('/api/octoprint/files')
+        .then(response => response.json())
+        .then(data => {
+            const fileList = document.getElementById('file-list');
+            if (data && data.files) {
+                let html = '';
+                data.files.forEach(file => {
+                    if (file.type === 'machinecode') {
+                        const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+                        const date = file.date ? new Date(file.date * 1000).toLocaleDateString('tr-TR') : '--';
+                        html += `
+                            <div class="file-item" onclick="selectFile('${file.name}')">
+                                <div class="file-icon">
+                                    <i class="bi bi-file-earmark-code"></i>
+                                </div>
+                                <div class="file-details">
+                                    <div class="file-name">${file.name}</div>
+                                    <div class="file-meta">${date}</div>
+                                </div>
+                                <div class="file-stats">
+                                    <span>${sizeMB} MB</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+                fileList.innerHTML = html || '<div class="text-center text-muted py-4">Dosya bulunamadı</div>';
+            }
+        })
+        .catch(error => {
+            document.getElementById('file-list').innerHTML = '<div class="text-center text-danger py-4">Dosyalar yüklenirken hata oluştu</div>';
+        });
+}
+
+// Additional functions for new UI
+function directPrint() {
+    // Open file upload dialog
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.gcode,.gco,.g';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            uploadAndPrint(file);
+        }
+    };
+    input.click();
+}
+
+function uploadAndPrint(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('print', 'true');
+    
+    showNotification('Dosya yükleniyor...', 'info');
+    
+    fetch('/api/octoprint/files/upload', {
+        method: 'POST',
+        body: formData
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification('Dosya yüklendi ve baskı başlatıldı', 'success');
+              updateFileList();
+          } else {
+              showNotification('Dosya yükleme başarısız', 'error');
+          }
+      });
+}
+
+function showRecentPrints() {
+    // Show recent prints modal or section
+    showNotification('Son baskılar yükleniyor...', 'info');
+}
+
+function uploadGcode() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.gcode,.gco,.g';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            showNotification('Dosya yükleniyor...', 'info');
+            
+            fetch('/api/octoprint/files/upload', {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      showNotification('Dosya başarıyla yüklendi', 'success');
+                      updateFileList();
+                  } else {
+                      showNotification('Dosya yükleme başarısız', 'error');
+                  }
+              });
+        }
+    };
+    input.click();
+}
+
+function setFanSpeed(value) {
+    const fanValue = Math.round(value * 2.55); // Convert 0-100 to 0-255
+    fetch('/api/octoprint/gcode', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({commands: [`M106 S${fanValue}`]})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              document.getElementById('fan-display').textContent = `${value}%`;
+              document.getElementById('fan-speed').textContent = `${value}%`;
+          }
+      });
+}
+
+function selectFile(filename) {
+    fetch('/api/octoprint/files/select', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({filename: filename, location: 'local'})
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              showNotification(`File ${filename} selected`, 'success');
+          } else {
+              showNotification(`Failed to select file ${filename}`, 'error');
+          }
+      });
+}
+
+// Notification function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+}
+
+// Auto-update every 3 seconds
+setInterval(updateOctoPrintData, 3000);
+
+// Initial load
+updateOctoPrintData();
+
+// Initialize G-code visualization when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit for elements to be ready
+    setTimeout(() => {
+        initGcodeVisualization();
+    }, 500);
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    if (gcodeVisualization.canvas) {
+        resizeCanvas();
+    }
+});
+
+// G-code input enter key
+document.getElementById('gcode-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendGcode();
+    }
+});
 </script>
 {% endblock %}

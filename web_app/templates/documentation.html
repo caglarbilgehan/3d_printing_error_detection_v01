@@ -5,48 +5,55 @@
 
 {% block extra_css %}
 <style>
+    /* Documentation page - Theme Aware */
     .doc-section {
-        background: white;
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
         border-radius: 10px;
         padding: 30px;
         margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        box-shadow: var(--shadow-sm);
     }
     
     .doc-section h3 {
-        color: #667eea;
+        color: var(--accent-primary);
         margin-bottom: 20px;
         padding-bottom: 10px;
-        border-bottom: 2px solid #667eea;
+        border-bottom: 2px solid var(--accent-primary);
     }
     
     .doc-section h4 {
-        color: #2c3e50;
+        color: var(--text-primary);
         margin-top: 25px;
         margin-bottom: 15px;
     }
     
+    .doc-section p, .doc-section ul, .doc-section li {
+        color: var(--text-secondary);
+    }
+    
     .algorithm-card {
-        background: #f8f9fa;
-        border-left: 4px solid #667eea;
+        background: var(--bg-tertiary);
+        border-left: 4px solid var(--accent-primary);
         padding: 20px;
         margin: 15px 0;
         border-radius: 5px;
     }
     
     .algorithm-card h5 {
-        color: #667eea;
+        color: var(--accent-primary);
         margin-bottom: 10px;
     }
     
     .code-block {
-        background: #2c3e50;
-        color: #ecf0f1;
+        background: var(--bg-primary);
+        color: var(--accent-success);
         padding: 15px;
         border-radius: 5px;
         font-family: 'Courier New', monospace;
         overflow-x: auto;
         margin: 15px 0;
+        border: 1px solid var(--border-color);
     }
     
     .pipeline-step {
@@ -54,7 +61,7 @@
         align-items: center;
         margin: 20px 0;
         padding: 15px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
         color: white;
         border-radius: 10px;
     }
@@ -76,7 +83,8 @@
     }
     
     .error-type-card {
-        border: 2px solid #e0e0e0;
+        background: var(--bg-card);
+        border: 2px solid var(--border-color);
         border-radius: 10px;
         padding: 20px;
         margin: 15px 0;
@@ -84,18 +92,22 @@
     }
     
     .error-type-card:hover {
-        border-color: #667eea;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        border-color: var(--accent-primary);
+        box-shadow: var(--shadow-md);
     }
     
     .error-type-card h5 {
-        color: #dc3545;
+        color: var(--accent-danger);
         margin-bottom: 10px;
+    }
+    
+    .error-type-card p {
+        color: var(--text-secondary);
     }
     
     .tech-badge {
         display: inline-block;
-        background: #667eea;
+        background: var(--accent-primary);
         color: white;
         padding: 5px 15px;
         border-radius: 20px;
@@ -104,7 +116,7 @@
     }
     
     .metric-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
         color: white;
         padding: 20px;
         border-radius: 10px;
@@ -120,6 +132,15 @@
     .metric-box .label {
         font-size: 0.9rem;
         opacity: 0.9;
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb-item a {
+        color: var(--accent-primary);
+    }
+    
+    .breadcrumb-item.active {
+        color: var(--text-secondary);
     }
 </style>
 {% endblock %}
@@ -181,7 +202,7 @@
         <div class="step-number">1</div>
         <div class="step-content">
             <h5>Kamera Görüntüsü Alımı</h5>
-            <p>MJPEG stream üzerinden 25 FPS ile görüntü alınır (http://192.168.1.17/webcam/?action=stream)</p>
+            <p>MJPEG stream üzerinden 25 FPS ile görüntü alınır (http://192.168.1.13/webcam/?action=stream)</p>
         </div>
     </div>
     

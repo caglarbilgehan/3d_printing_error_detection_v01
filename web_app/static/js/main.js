@@ -19,18 +19,38 @@ function changeLanguage(lang) {
         });
 }
 
-// Simulated system stats
-setInterval(() => {
-    const cpuElem = document.getElementById('cpu-usage');
-    const memElem = document.getElementById('memory-usage');
-    
-    if (cpuElem) {
-        cpuElem.textContent = (Math.random() * 30 + 20).toFixed(1);
-    }
-    if (memElem) {
-        memElem.textContent = (Math.random() * 20 + 40).toFixed(1);
-    }
-}, 3000);
+// System stats update - fetches from API
+function updateSystemStats() {
+    fetch('/api/status')
+        .then(r => r.json())
+        .then(data => {
+            // Header stats
+            const headerCpu = document.getElementById('header-cpu');
+            const headerMemory = document.getElementById('header-memory');
+            
+            if (data.system) {
+                if (headerCpu) headerCpu.textContent = data.system.cpu_percent.toFixed(1) + '%';
+                if (headerMemory) headerMemory.textContent = data.system.memory_percent.toFixed(1) + '%';
+            }
+            
+            // Legacy sidebar stats (if exists)
+            const cpuElem = document.getElementById('cpu-usage');
+            const memElem = document.getElementById('memory-usage');
+            
+            if (data.system) {
+                if (cpuElem) cpuElem.textContent = data.system.cpu_percent.toFixed(1);
+                if (memElem) memElem.textContent = data.system.memory_percent.toFixed(1);
+            }
+        })
+        .catch(err => {
+            console.log('Stats update error:', err);
+        });
+}
+
+// Update stats every 5 seconds
+setInterval(updateSystemStats, 5000);
+// Initial update
+updateSystemStats();
 
 // Performance Settings Modal
 function loadPerformanceSettings() {

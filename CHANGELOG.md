@@ -119,8 +119,8 @@ All notable changes to this project will be documented in this file.
 ### 🌐 Network Configuration
 
 #### Raspberry Pi Entegrasyonu
-- **OctoPrint**: `http://192.168.1.17`
-- **Camera Stream**: `http://192.168.1.17/webcam/?action=stream`
+- **OctoPrint**: `http://192.168.1.13`
+- **Camera Stream**: `http://192.168.1.13/webcam/?action=stream`
 - **API Key**: Güvenli kimlik doğrulama
 - **Timeout Yönetimi**: 10 saniye timeout
 - **Hata Yönetimi**: Connection error, timeout handling

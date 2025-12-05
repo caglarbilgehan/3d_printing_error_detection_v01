@@ -1,0 +1,591 @@
+/* Theme System - Dark & Light Mode Support */
+
+/* ============================================
+   CSS Variables for Theme System
+   ============================================ */
+
+:root,
+[data-theme="light"] {
+    /* Light Theme - Clean & Professional */
+    --bg-primary: #f8fafc;
+    --bg-secondary: #ffffff;
+    --bg-tertiary: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-sidebar: #ffffff;
+    --bg-header: #ffffff;
+    --bg-footer: #f8fafc;
+    
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --text-inverse: #ffffff;
+    --text-sidebar: #1e293b;
+    
+    --border-color: #e2e8f0;
+    --border-light: #f1f5f9;
+    
+    /* Consistent accent colors */
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --accent-success: #22c55e;
+    --accent-warning: #f59e0b;
+    --accent-danger: #ef4444;
+    --accent-info: #06b6d4;
+    
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    
+    --header-height: 60px;
+    --sidebar-width: 260px;
+    
+    /* Chart colors */
+    --chart-line-1: #6366f1;
+    --chart-line-2: #8b5cf6;
+    --chart-bg: rgba(99, 102, 241, 0.1);
+    
+    /* Logo filter for light mode */
+    --logo-filter: none;
+    
+    /* Sidebar - Light mode uses gradient */
+    --sidebar-bg-gradient: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+    --sidebar-text: #ffffff;
+    --sidebar-hover-bg: rgba(255,255,255,0.15);
+    --sidebar-active-bg: rgba(255,255,255,0.2);
+    --sidebar-border: transparent;
+}
+
+/* ============================================
+   Dark Theme - Modern & Cohesive
+   ============================================ */
+[data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --bg-card: #1e293b;
+    --bg-sidebar: #1e293b;
+    --bg-header: #1e293b;
+    --bg-footer: #0f172a;
+    
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-inverse: #0f172a;
+    --text-sidebar: #f1f5f9;
+    
+    --border-color: #334155;
+    --border-light: #475569;
+    
+    /* Same accent colors for consistency */
+    --accent-primary: #818cf8;
+    --accent-secondary: #a78bfa;
+    --accent-success: #4ade80;
+    --accent-warning: #fbbf24;
+    --accent-danger: #f87171;
+    --accent-info: #22d3ee;
+    
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+    --shadow-lg: 0 10px 25px rgba(0,0,0,0.5);
+    
+    /* Logo filter for dark mode */
+    --logo-filter: brightness(0) invert(1);
+    
+    /* Sidebar - Dark mode solid color */
+    --sidebar-bg-gradient: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    --sidebar-text: #f1f5f9;
+    --sidebar-hover-bg: rgba(255,255,255,0.08);
+    --sidebar-active-bg: rgba(129, 140, 248, 0.2);
+    --sidebar-border: #334155;
+}
+
+/* ============================================
+   Base Styles with Theme Variables
+   ============================================ */
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header */
+.top-header {
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
+}
+
+.top-header .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.top-header .btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+.header-logo {
+    filter: var(--logo-filter);
+    transition: filter 0.3s ease;
+}
+
+.header-brand {
+    text-decoration: none;
+}
+
+/* System Stats in Header */
+.system-stats {
+    border-left: 1px solid var(--border-color) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.system-stats .stat-item {
+    color: var(--text-secondary);
+}
+
+.system-stats .stat-value {
+    color: var(--text-primary);
+}
+
+/* Sidebar - Light Mode (Gradient) */
+[data-theme="light"] .sidebar {
+    background: var(--sidebar-bg-gradient);
+    color: var(--sidebar-text);
+    border-right: var(--sidebar-border);
+}
+
+[data-theme="light"] .sidebar-menu a {
+    color: rgba(255,255,255,0.85);
+}
+
+[data-theme="light"] .sidebar-menu a:hover {
+    background: var(--sidebar-hover-bg);
+    color: #ffffff;
+}
+
+[data-theme="light"] .sidebar-menu a.active {
+    background: var(--sidebar-active-bg);
+    color: #ffffff;
+}
+
+[data-theme="light"] .sidebar-section {
+    border-top-color: rgba(255,255,255,0.15);
+}
+
+[data-theme="light"] .sidebar-section h6 {
+    color: rgba(255,255,255,0.7);
+}
+
+[data-theme="light"] .sidebar .error-mini-item {
+    color: rgba(255,255,255,0.8);
+}
+
+[data-theme="light"] .sidebar .error-summary-badge {
+    background: rgba(255,255,255,0.15);
+    color: #ffffff;
+}
+
+[data-theme="light"] .sidebar .error-count {
+    color: #ffffff;
+}
+
+/* Sidebar - Dark Mode (Solid) */
+[data-theme="dark"] .sidebar {
+    background: var(--sidebar-bg-gradient);
+    color: var(--sidebar-text);
+    border-right: 1px solid var(--sidebar-border);
+}
+
+[data-theme="dark"] .sidebar-menu a {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .sidebar-menu a:hover {
+    background: var(--sidebar-hover-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .sidebar-menu a.active {
+    background: var(--sidebar-active-bg);
+    color: var(--accent-primary);
+}
+
+[data-theme="dark"] .sidebar-section {
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .sidebar-section h6 {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .sidebar .error-mini-item {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .sidebar .error-summary-badge {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .sidebar .error-count {
+    color: var(--accent-primary);
+}
+
+/* Footer */
+.footer {
+    background: var(--bg-footer);
+    border-top: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+.footer a {
+    color: var(--accent-primary);
+}
+
+.footer a:hover {
+    color: var(--accent-secondary);
+}
+
+/* Main Content */
+.main-content {
+    background-color: var(--bg-primary);
+}
+
+/* Cards */
+.card-custom {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    color: var(--text-primary);
+}
+
+.card-custom .label {
+    color: var(--text-secondary);
+}
+
+.card-custom .value {
+    color: var(--accent-primary);
+}
+
+/* Buttons - Theme Aware */
+.btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-light);
+}
+
+[data-theme="dark"] .btn-outline-secondary:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-secondary);
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+}
+
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+
+/* Tables */
+.table {
+    color: var(--text-primary);
+}
+
+.table thead th {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
+
+.table td {
+    border-color: var(--border-color);
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--bg-tertiary);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    box-shadow: var(--shadow-md);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background-color: var(--bg-tertiary);
+    color: var(--accent-primary);
+}
+
+.dropdown-divider {
+    border-color: var(--border-color);
+}
+
+/* Progress Bars */
+.progress {
+    background-color: var(--bg-tertiary);
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+}
+
+/* Modals */
+.modal-content {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.modal-header {
+    border-color: var(--border-color);
+}
+
+.modal-footer {
+    border-color: var(--border-color);
+}
+
+/* Alerts */
+.alert {
+    border: none;
+}
+
+/* Nav Tabs */
+.nav-tabs {
+    border-color: var(--border-color);
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-secondary);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.nav-tabs .nav-link.active {
+    background-color: var(--bg-card);
+    border-color: var(--border-color);
+    color: var(--accent-primary);
+}
+
+/* Badges */
+[data-theme="dark"] .badge.bg-light {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+/* ============================================
+   Theme Toggle Button
+   ============================================ */
+
+.theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+    border-color: var(--accent-primary);
+}
+
+.theme-toggle i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle .bi-sun-fill {
+    color: #ffc107;
+}
+
+.theme-toggle .bi-moon-fill {
+    color: #6c757d;
+}
+
+[data-theme="dark"] .theme-toggle .bi-moon-fill {
+    color: #4ecdc4;
+}
+
+/* ============================================
+   Printer Control Page - Dark Theme Specific
+   ============================================ */
+
+.printer-control-page {
+    background: var(--bg-primary);
+}
+
+[data-theme="light"] .printer-control-page {
+    background: var(--bg-primary);
+}
+
+[data-theme="light"] .printer-header,
+[data-theme="light"] .printer-tabs,
+[data-theme="light"] .action-row,
+[data-theme="light"] .current-job,
+[data-theme="light"] .print-queue,
+[data-theme="light"] .file-browser,
+[data-theme="light"] .control-card,
+[data-theme="light"] .console-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="light"] .printer-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="light"] .printer-name h3,
+[data-theme="light"] .stat-item .value,
+[data-theme="light"] .printer-tabs .nav-link.active,
+[data-theme="light"] .job-info h4,
+[data-theme="light"] .queue-header h5,
+[data-theme="light"] .browser-header h5,
+[data-theme="light"] .control-card h6 {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .stat-item,
+[data-theme="light"] .printer-tabs .nav-link,
+[data-theme="light"] .job-meta,
+[data-theme="light"] .progress-stats,
+[data-theme="light"] .queue-table {
+    color: var(--text-secondary);
+}
+
+/* ============================================
+   Farm Dashboard - Theme Aware
+   ============================================ */
+
+.farm-dashboard {
+    background: var(--bg-primary);
+}
+
+[data-theme="light"] .farm-dashboard {
+    background: var(--bg-primary);
+}
+
+[data-theme="light"] .dashboard-header h2 {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .system-status-bar,
+[data-theme="light"] .printer-card,
+[data-theme="light"] .cameras-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="light"] .printer-card-header {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="light"] .printer-card-header h5 {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .printer-chart-area {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="light"] .printer-status-info {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .printer-card-footer {
+    border-color: var(--border-color);
+}
+
+[data-theme="light"] .add-printer-card {
+    background: var(--bg-card);
+    border-color: var(--border-color);
+}
+
+[data-theme="light"] .add-printer-card:hover {
+    border-color: var(--accent-primary);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+[data-theme="light"] .camera-card {
+    background: var(--bg-tertiary);
+}
+
+/* ============================================
+   Scrollbar Styling
+   ============================================ */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* ============================================
+   Transitions for Smooth Theme Switching
+   ============================================ */
+
+.top-header,
+.sidebar,
+.main-content,
+.card-custom,
+.form-control,
+.form-select,
+.dropdown-menu,
+.modal-content,
+.printer-control-page,
+.farm-dashboard,
+.printer-card,
+.control-card {
+    transition: background-color 0.3s ease, 
+                border-color 0.3s ease, 
+                color 0.3s ease,
+                box-shadow 0.3s ease;
+}

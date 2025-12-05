@@ -350,7 +350,7 @@ class ConfigurationManager:
         """Load default configuration"""
         return {
             'camera': {
-                'url': 'http://192.168.1.17/webcam/?action=stream',
+                'url': 'http://192.168.1.13/webcam/?action=stream',
                 'timeout': 5.0,
                 'reconnect_attempts': 3,
                 'buffer_size': 1
@@ -376,7 +376,7 @@ class ConfigurationManager:
             },
             'octoprint': {
                 'api_key': '09C668315A784B138FF05305A5DF4E3F',
-                'url': 'http://192.168.1.17',
+                'url': 'http://192.168.1.13',
                 'port': 80,
                 'timeout': 5.0
             },

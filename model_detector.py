@@ -8,9 +8,11 @@ import numpy as np
 from collections import deque
 import time
 import logging
-from typing import Tuple, Optional, List
+from typing import Tuple
 
+# Setup logging - WARNING level to reduce noise
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 class ModelDetector:
     def __init__(self):
@@ -35,9 +37,9 @@ class ModelDetector:
         self.model_center = (0, 0)
         self.model_bounds = None
         
-        # Processing parameters
-        self.min_model_area = 1000      # Minimum area for model detection
-        self.max_model_area = 100000    # Maximum area for model detection
+        # Processing parameters - Daha esnek threshold'lar
+        self.min_model_area = 500       # Minimum area for model detection (düşürüldü)
+        self.max_model_area = 200000    # Maximum area for model detection (artırıldı)
         self.noise_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         
         logger.info("3D Model Detector initialized")
@@ -63,12 +65,28 @@ class ModelDetector:
         # Find contours (potential model parts)
         contours, _ = cv2.findContours(fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
+        # Debug: Log contour information
+        total_contours = len(contours)
+        if total_contours > 0:
+            areas = [cv2.contourArea(c) for c in contours]
+            max_area = max(areas) if areas else 0
+            logger.debug(f"Found {total_contours} contours, max area: {max_area}")
+        
         # Filter contours by size (remove noise, keep model)
         model_contours = []
         for contour in contours:
             area = cv2.contourArea(contour)
             if self.min_model_area < area < self.max_model_area:
                 model_contours.append(contour)
+        
+        # If no model contours found, try with relaxed criteria
+        if not model_contours and contours:
+            # Use the largest contour if it's reasonably sized
+            largest_contour = max(contours, key=cv2.contourArea)
+            largest_area = cv2.contourArea(largest_contour)
+            if largest_area > 100:  # Very relaxed minimum
+                model_contours = [largest_contour]
+                # Debug log removed to reduce terminal noise
         
         # Create model mask
         model_mask = np.zeros_like(fg_mask)
@@ -334,7 +352,7 @@ class ModelMaskingSystem:
 
 if __name__ == "__main__":
     # Configuration
-    CAMERA_URL = "http://192.168.1.17/webcam/?action=stream"
+    CAMERA_URL = "http://192.168.1.13/webcam/?action=stream"
     
     # Create and run system
     system = ModelMaskingSystem(CAMERA_URL)

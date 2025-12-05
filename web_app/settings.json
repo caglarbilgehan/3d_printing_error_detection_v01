@@ -1,0 +1,13 @@
+{
+  "octoprint": {
+    "url": "http://192.168.1.13",
+    "port": 80,
+    "api_key": "09C668315A784B138FF05305A5DF4E3F",
+    "camera_url": "/webcam/?action=stream"
+  },
+  "detection": {
+    "frame_skip": 2,
+    "jpeg_quality": 85,
+    "resize_factor": 1.0
+  }
+}

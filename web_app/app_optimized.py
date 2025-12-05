@@ -33,9 +33,9 @@ logger = logging.getLogger(__name__)
 class Config:
     # OctoPrint Configuration
     OCTOPRINT_API_KEY = "09C668315A784B138FF05305A5DF4E3F"
-    OCTOPRINT_URL = "http://192.168.1.17"
+    OCTOPRINT_URL = "http://192.168.1.13"
     OCTOPRINT_PORT = 80
-    CAMERA_URL = "http://192.168.1.17/webcam/?action=stream"
+    CAMERA_URL = "http://192.168.1.13/webcam/?action=stream"
     
     # Performance Settings
     FRAME_SKIP = 2

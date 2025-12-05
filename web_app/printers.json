@@ -1,0 +1,56 @@
+{
+  "printers": [
+    {
+      "id": "printer_1",
+      "name": "3D Yazıcı 1",
+      "printer_type": "octoprint",
+      "host": "http://192.168.1.13",
+      "port": 80,
+      "api_key": "09C668315A784B138FF05305A5DF4E3F",
+      "brand": null,
+      "model": null,
+      "serial_number": null,
+      "camera_url": "/webcam/?action=stream",
+      "enabled": true,
+      "timeout": 10,
+      "ssl": false,
+      "group_id": null,
+      "extra_settings": null
+    },
+    {
+      "id": "printer_6f76acfb",
+      "name": "C1",
+      "printer_type": "octoprint",
+      "host": "192.168.1.13",
+      "port": 80,
+      "api_key": "elgmebXyLzBiIvKPovO6j-L0KNC_9DWNgyMRmCwvpj4",
+      "brand": "Pidu",
+      "model": "C",
+      "serial_number": "",
+      "camera_url": "",
+      "enabled": true,
+      "timeout": 10,
+      "ssl": false,
+      "group_id": "group_1",
+      "extra_settings": null
+    }
+  ],
+  "cameras": [
+    {
+      "id": "camera_1",
+      "name": "Ana Kamera",
+      "url": "/webcam/?action=stream",
+      "camera_type": "mjpeg",
+      "printer_ids": [
+        "printer_1"
+      ],
+      "enabled": true,
+      "username": null,
+      "password": null,
+      "refresh_rate": 1000,
+      "position": "front",
+      "is_primary": false,
+      "extra_settings": null
+    }
+  ]
+}

@@ -1,12 +1,56 @@
 <!-- Top Header Component -->
 <header class="top-header">
-    <div class="header-brand">
-        <i class="bi bi-printer-fill"></i>
-        <span>{{ t.header_title if t else '3D Yazıcı İzleme' }}</span>
-    </div>
-    <div class="header-actions">
-        <button class="btn btn-sm btn-outline-secondary" id="toggle-sidebar">
+    <div class="header-left">
+        <button class="btn btn-sm btn-outline-secondary" id="toggle-sidebar" onclick="toggleSidebar()">
             <i class="bi bi-list"></i>
+        </button>
+        <a href="/" class="header-brand">
+            <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="PIDU Logo" class="header-logo">
+        </a>
+        
+        <!-- Printer Selector Dropdown -->
+        <div class="dropdown printer-selector">
+            <button class="btn btn-sm btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="bi bi-printer-fill text-success"></i>
+                <span id="current-printer-name">{{ t.select_printer if t else 'Yazıcı Seç' }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-dark printer-dropdown">
+                <li class="dropdown-header">
+                    <i class="bi bi-collection"></i> {{ t.connected_printers if t else 'Bağlı Yazıcılar' }}
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li id="printer-list-container">
+                    <!-- Printers will be loaded dynamically -->
+                    <span class="dropdown-item">{{ t.no_printers if t else 'Henüz yazıcı yok' }}</span>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item text-info" href="/printers">
+                        <i class="bi bi-plus-circle"></i> {{ t.add_printer if t else 'Yazıcı Ekle' }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="header-actions">
+        <!-- System Stats -->
+        <div class="system-stats d-none d-md-flex">
+            <div class="stat-item">
+                <i class="bi bi-cpu"></i>
+                <span class="stat-label">CPU:</span>
+                <span class="stat-value" id="header-cpu">--%</span>
+            </div>
+            <div class="stat-item">
+                <i class="bi bi-memory"></i>
+                <span class="stat-label">RAM:</span>
+                <span class="stat-value" id="header-memory">--%</span>
+            </div>
+        </div>
+        
+        <!-- Theme Toggle -->
+        <button class="btn btn-sm btn-outline-secondary" id="theme-toggle" onclick="toggleTheme()" title="{{ t.toggle_theme if t else 'Tema Değiştir' }}">
+            <i class="bi bi-moon-fill"></i>
         </button>
         
         <!-- Language Selector -->
@@ -14,7 +58,7 @@
             <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                 <i class="bi bi-translate"></i> {{ lang|upper if lang else 'TR' }}
             </button>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#" onclick="changeLanguage('tr')">🇹🇷 Türkçe</a></li>
                 <li><a class="dropdown-item" href="#" onclick="changeLanguage('en')">🇬🇧 English</a></li>
             </ul>
@@ -23,23 +67,54 @@
         <!-- Settings Dropdown -->
         <div class="dropdown">
             <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                <i class="bi bi-gear"></i> {{ t.settings if t else 'Ayarlar' }}
+                <i class="bi bi-gear"></i>
             </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="/roi-setup"><i class="bi bi-bounding-box"></i> {{ t.roi_config if t else 'ROI Yapılandırması' }}</a></li>
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#performanceModal"><i class="bi bi-speedometer2"></i> {{ t.performance_settings if t else 'Performans Ayarları' }}</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="#"><i class="bi bi-camera"></i> {{ t.camera_settings if t else 'Kamera Ayarları' }}</a></li>
-                <li><a class="dropdown-item" href="#"><i class="bi bi-sliders"></i> {{ t.detection_settings if t else 'Tespit Ayarları' }}</a></li>
-                <li><hr class="dropdown-divider"></li>
+            <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="#"><i class="bi bi-box-arrow-right"></i> {{ t.logout if t else 'Çıkış' }}</a></li>
             </ul>
         </div>
         
         <!-- Notifications -->
-        <button class="btn btn-sm btn-primary">
+        <button class="btn btn-sm btn-primary position-relative">
             <i class="bi bi-bell"></i>
-            <span class="badge bg-danger">3</span>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notification-count">
+                0
+            </span>
         </button>
     </div>
 </header>
+
+<script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.querySelector('.main-content');
+    sidebar.classList.toggle('collapsed');
+    if (mainContent) {
+        mainContent.classList.toggle('sidebar-collapsed');
+    }
+}
+
+function selectPrinter(printerId) {
+    // Store selected printer
+    localStorage.setItem('selectedPrinter', printerId);
+    // Reload page or update UI
+    location.reload();
+}
+
+// Update system stats in header
+function updateHeaderStats() {
+    fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.system) {
+                document.getElementById('header-cpu').textContent = data.system.cpu_percent + '%';
+                document.getElementById('header-memory').textContent = data.system.memory_percent + '%';
+            }
+        })
+        .catch(err => console.log('Stats update error'));
+}
+
+// Update stats every 5 seconds
+setInterval(updateHeaderStats, 5000);
+updateHeaderStats();
+</script>

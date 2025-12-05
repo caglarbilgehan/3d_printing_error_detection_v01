@@ -30,9 +30,9 @@ Sistem, yazıcı tablasında bulunan **sadece 3D baskı modelini** tespit eder:
 
 ## 🌐 Network Setup
 
-- **Raspberry Pi (OctoPrint)**: `192.168.1.17`
+- **Raspberry Pi (OctoPrint)**: `192.168.1.13`
 - **PC (This Application)**: `localhost:5001`
-- **Camera Stream**: `http://192.168.1.17/webcam/?action=stream`
+- **Camera Stream**: `http://192.168.1.13/webcam/?action=stream`
 
 ### Network Kurulumu
 1. Raspberry Pi'de OctoPrint kurulu olmalı
@@ -129,12 +129,12 @@ Sistem **sadece model üzerinde** hata tespiti yapar:
 `web_app/app.py` dosyasında:
 ```python
 OCTOPRINT_API_KEY = "YOUR_API_KEY"
-OCTOPRINT_URL = "http://192.168.1.17"
+OCTOPRINT_URL = "http://192.168.1.13"
 ```
 
 ### Kamera Ayarları
 ```python
-detector = PrintStatusDetector("http://192.168.1.17/webcam/?action=stream")
+detector = PrintStatusDetector("http://192.168.1.13/webcam/?action=stream")
 ```
 
 ### Performans Ayarları
@@ -180,13 +180,13 @@ detector = PrintStatusDetector("http://192.168.1.17/webcam/?action=stream")
 ### Kamera Bağlantısı
 ```bash
 # Kamera erişimini test et
-curl http://192.168.1.17/webcam/?action=stream
+curl http://192.168.1.13/webcam/?action=stream
 ```
 
 ### OctoPrint API
 ```bash
 # API erişimini test et
-curl -H "X-Api-Key: YOUR_API_KEY" http://192.168.1.17/api/version
+curl -H "X-Api-Key: YOUR_API_KEY" http://192.168.1.13/api/version
 ```
 
 ### Debug Modu

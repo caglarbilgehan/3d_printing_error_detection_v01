@@ -356,7 +356,7 @@ class PrintStatusDetector:
         
         return dashboard
 
-    def _draw_motion_graph(self, dashboard: np.ndarray, x: int, y: int, w: int, h: int):
+    def draw_motion_graph(self, dashboard: np.ndarray, x: int, y: int, w: int, h: int):
         """Draw motion history graph"""
         # Background
         cv2.rectangle(dashboard, (x, y), (x+w, y+h), (40, 40, 40), -1)
@@ -435,7 +435,7 @@ class PrintStatusDetector:
 
 if __name__ == "__main__":
     # Configuration
-    CAMERA_URL = "http://192.168.1.17/webcam/?action=stream"
+    CAMERA_URL = "http://192.168.1.13/webcam/?action=stream"
     
     # Create detector
     detector = PrintStatusDetector(CAMERA_URL)
